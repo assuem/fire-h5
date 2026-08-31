@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>火眼 · 每日火灾播报</title>
+<meta name="description" content="荣达消防 · 火眼每日火灾播报：AI 联网聚合各地消防救援机构官方通报与权威媒体转载，按真实发生日期归档、按板块分类的火情信息流，每日多时段滚动更新。" />
+<meta property="og:title" content="火眼 · 每日火灾播报" />
+<meta property="og:description" content="荣达消防出品的每日火灾播报：AI 联网聚合各地消防官方通报与权威媒体转载，按真实发生日期归档、按板块分类的火情信息流，每日滚动更新。" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="zh_CN" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="火眼 · 每日火灾播报" />
+<meta name="twitter:description" content="AI 联网聚合各地消防官方通报与权威媒体转载的火情信息流，每日滚动更新。" />
+<meta name="theme-color" content="#B71C1C" />
+<meta property="og:image" content="poster-cover.png" />
+<style>
+  :root{
+    --bg:#f5f6f8; --bg2:#eef0f4; --panel:#ffffff; --panel2:#fbfcfd;
+    --border:#e6e9ee; --border2:#d4dae1;
+    --text:#1f2328; --muted:#5b636c; --faint:#8b939c;
+    --red:#B71C1C; --brand:#B71C1C; --brand2:#e23b3b;
+    --green:#1a7f37; --green-bg:#eaf6ec; --yellow:#9a6700; --yellow-bg:#fbf3e4;
+    --blue:#0969da; --blue-bg:#eef4fc;
+    --mono:'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(820px 460px at 88% -8%, rgba(183,28,28,.07), transparent 60%),
+      linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+    background-attachment:fixed;
+    color:var(--text); font-family:var(--sans); line-height:1.65;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  ::selection{background:rgba(183,28,28,.16);color:var(--red)}
+  a{color:var(--blue);text-decoration:none}
+
+  /* ---------- top nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 28px;
+    background:rgba(255,255,255,.85);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex;align-items:center;gap:8px;color:var(--text)}
+  .brand .logo{
+    width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--brand),#ff5a5c);
+    box-shadow:0 4px 14px rgba(183,28,28,.32);font-size:16px;
+  }
+  .brand .bn{font-weight:700;font-size:17px;letter-spacing:.3px}
+  .nav .right{display:flex;align-items:center;gap:14px}
+  .nav .date-pill{
+    font-family:var(--mono);font-size:12px;color:var(--muted);
+    border:1px solid var(--border2);border-radius:20px;padding:5px 12px;background:#fff;
+  }
+  .btn{
+    font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;
+    border:1px solid var(--border2);background:var(--panel);color:var(--text);
+    padding:8px 16px;border-radius:8px;transition:.18s;
+  }
+  .btn:hover{border-color:var(--red);color:var(--red)}
+  .btn.primary{background:linear-gradient(135deg,var(--brand),#e23b3b);border:none;color:#fff;box-shadow:0 4px 16px rgba(183,28,28,.3)}
+  .btn.primary:hover{filter:brightness(1.05);color:#fff}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+  section{padding:54px 0}
+  .sec-title{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .sec-title h2{font-size:25px;font-weight:800;letter-spacing:-.3px;color:var(--text)}
+  .sec-title .en{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:1px}
+  .sec-note{font-size:12.5px;color:var(--muted);margin-bottom:22px}
+
+  /* ---------- hero（双栏：左标题 / 右最新火情+红警） ---------- */
+  .hero{padding-top:54px;display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:start}
+  .hero-left{}
+  .hero-right{display:flex;flex-direction:column;gap:14px}
+  .tag{
+    display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;
+    color:var(--red);border:1px solid rgba(183,28,28,.3);background:rgba(183,28,28,.07);
+    padding:5px 12px;border-radius:20px;margin-bottom:20px;font-weight:600;
+  }
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  h1{font-size:44px;line-height:1.14;letter-spacing:-.5px;font-weight:800;margin-bottom:16px;color:var(--text)}
+  h1 .accent{
+    background:linear-gradient(120deg,var(--brand),#e8590c);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lead{color:var(--muted);font-size:15.5px;max-width:480px;margin-bottom:24px}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+
+  /* Hero 右栏：最新火情卡片（紧凑版） */
+  .hero-case{
+    background:#fff;
+    border:1px solid var(--border2);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(31,35,40,.07),0 1px 3px rgba(31,35,40,.04);
+    position:relative;
+    margin-bottom:14px;
+  }
+  .hero-case:last-child{margin-bottom:0}
+  .hero-case::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--red),#ff8a5c,var(--red));
+  }
+  .case-head{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding:14px 18px 10px;border-bottom:1px solid var(--border2);
+  }
+  .case-badge{font-size:13.5px;font-weight:700;color:var(--red)}
+  .case-vlink{margin-right:auto}
+  .case-time{font-family:var(--mono);font-size:12px;color:#999}
+  .case-body{padding:16px 18px 18px}
+  .case-loc{font-size:15.5px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.45}
+  .case-cas{
+    font-size:13px;font-weight:600;margin-bottom:0;display:inline-block;
+    padding:4px 12px;border-radius:8px;line-height:1.3
+  }
+  .case-cas.has-cas{color:var(--red);background:rgba(183,28,28,.08)}
+  .case-cas.no-cas{color:#888;background:rgba(0,0,0,.04)}
+  .case-vlink{
+    color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;
+    white-space:nowrap;transition:.15s;
+  }
+  .case-vlink:hover{text-decoration:underline;filter:brightness(.9)}
+  .case-divider{border-top:1px solid var(--border2);margin:0}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .stat{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 18px;
+    position:relative;overflow:hidden;transition:.2s;box-shadow:0 1px 3px rgba(31,35,40,.05);
+  }
+  .stat:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(31,35,40,.1)}
+.stat .k{font-family:var(--mono);font-size:32px;font-weight:700;letter-spacing:-1px;line-height:40px}
+.stat .l{color:var(--muted);font-size:12.5px;margin-top:6px;line-height:1.4}
+.stat.red .k{color:var(--red)}.stat.green .k{color:var(--green)}.stat.blue .k{color:var(--blue)}
+/* 更新日期卡片：与其他统计卡字号一致 */
+.stat.yellow .k{color:var(--yellow);font-size:26px;letter-spacing:0;white-space:nowrap}
+  .stat::after{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--brand),transparent)}
+
+  /* regions */
+  .regions{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;
+    box-shadow:0 1px 3px rgba(31,35,40,.05);
+  }
+  .card h3{font-size:15.5px;display:flex;align-items:center;gap:9px;margin-bottom:12px;color:var(--text)}
+  .card h3 .ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:14px;background:rgba(183,28,28,.1);color:var(--red)}
+  .badge{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:6px;font-weight:600}
+  .badge.ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,127,55,.3)}
+  .badge.warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(154,103,0,.3)}
+  .city-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .city{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:4px 10px;background:#fff}
+
+  /* case detail — 最新火情（醒目卡片，已移入 Hero 右栏） */
+  .case{
+    background:var(--panel);
+    border:1.5px solid rgba(183,28,28,.18);
+    border-radius:16px;
+    padding:26px 28px;
+    box-shadow:0 8px 32px rgba(183,28,28,.08),0 1px 3px rgba(31,35,40,.06);
+    position:relative;
+    overflow:hidden;
+  }
+  .case::before{
+    content:"";
+    position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--red),#ff8a5c,var(--red));
+  }
+  .case .head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .case .head .loc{font-size:19px;font-weight:800;color:var(--text);line-height:1.4}
+  .case .head .loc .pin{color:var(--red);margin-right:7px;font-size:20px}
+  .case .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .field{
+    background:linear-gradient(135deg,var(--panel2),#fff);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .field:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(31,35,40,.08)}
+  .field .fk{font-family:var(--mono);font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .field .fv{font-size:14px;color:var(--text)}
+  .field.full{grid-column:1/-1}
+  .field .fv.ok{color:var(--green);font-weight:600}.field .fv.warn{color:var(--yellow);font-weight:600}
+
+  /* tips */
+  .tips{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .tip{display:flex;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:18px;box-shadow:0 1px 3px rgba(31,35,40,.05)}
+  .tip .n{
+    flex:0 0 34px;height:34px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-weight:700;
+    background:linear-gradient(135deg,var(--brand),#e23b3b);color:#fff;font-size:15px;
+  }
+  .tip .tx{font-size:14px;color:var(--text)}
+
+  /* ---------- archive tools (dist / filters / bar) ---------- */
+  .archive-tools{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .dist{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .dist .dl{font-family:var(--mono);font-size:12px;color:var(--faint);margin-right:4px}
+  .dist .chip{font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:14px;border:1px solid var(--border2);background:#fff;color:var(--muted);cursor:pointer;transition:all .15s}
+  .dist .chip:hover{border-color:var(--red);color:var(--red)}
+  .dist .chip.active{background:var(--brand)!important;border-color:var(--brand)!important;color:#fff!important}
+  .cat-bar-wrap{margin-bottom:20px}
+  .cat-bar-cap{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-bottom:7px;letter-spacing:.5px}
+  .cat-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--border);border:1px solid var(--border2)}
+  .cat-bar span{display:block;height:100%;transition:flex .3s}
+  .cat-badge{font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;white-space:nowrap}
+  .empty{padding:30px;text-align:center;color:var(--faint);font-size:14px}
+
+  /* ---------- 火情速递信息流（知乎式列表流：顶行元信息 → 标题 → 摘要 → 底部标签） ---------- */
+  .feed-date{
+    font-family:var(--mono);font-size:13px;color:var(--muted);font-weight:600;
+    margin:24px 0 12px;padding-left:12px;border-left:3px solid var(--border2);
+  }
+  .feed-card{
+    background:var(--panel);border:1px solid var(--border);
+    border-left:3px solid var(--red);border-radius:12px;padding:18px 20px;margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(31,35,40,.05);transition:.18s;
+  }
+  .feed-card:hover{box-shadow:0 4px 14px rgba(31,35,40,.08)}
+  /* 顶行：时间/日期 + 分类标签 + 伤亡标签 */
+  .fc-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .fc-time{font-family:var(--mono);font-size:12px;color:var(--faint);font-weight:500}
+  .cat-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;white-space:nowrap}
+  .sev{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:5px}
+  .sev-dead{background:rgba(183,28,28,.1);color:var(--red);border:1px solid rgba(183,28,28,.25)}
+  .sev-inj{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(154,103,0,.25)}
+  .sev-none{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,127,55,.25)}
+  /* 标题行：地点（粗体大字） */
+  .fc-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:8px;word-break:break-word}
+  .fc-title .loc-region{display:block;font-family:var(--mono);font-size:11.5px;color:var(--faint);font-weight:500;margin-bottom:3px}
+  /* 摘要 */
+  .fc-sum{font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:10px;word-break:break-word;overflow-wrap:break-word}
+  /* 底部：信源 + 原因 + 核实 */
+  .fc-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--faint);padding-top:8px;border-top:1px solid rgba(0,0,0,.04)}
+  .fc-footer a{color:var(--blue);text-decoration:none}
+  .fc-footer a:hover{text-decoration:underline}
+
+  /* note */
+  .note{background:var(--panel);border:1px dashed var(--border2);border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(31,35,40,.04)}
+  .note ul{list-style:none;display:grid;gap:11px}
+  .note li{display:flex;gap:11px;font-size:13.5px;color:var(--muted)}
+  .note li .b{color:var(--blue);font-family:var(--mono);flex:0 0 auto;font-weight:600}
+
+  /* footer */
+  footer{border-top:1px solid var(--border);padding:32px 0 48px;color:var(--faint);font-size:13px}
+  footer .wrap{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+  footer .src{font-family:var(--mono);font-size:12px}
+
+
+  /* ---------- 业务直连（与页面风格统一） ---------- */
+  .contact-section{
+    border-top:1px solid var(--border);
+    padding:44px 24px 52px;
+    position:relative;
+  }
+  .contact-section .sec-title{margin-bottom:24px}
+  .contact-grid{
+    display:flex;flex-wrap:wrap;gap:16px;justify-content:center;
+  }
+  .contact-card{
+    flex:1 1 300px;max-width:420px;text-decoration:none;
+    display:flex;align-items:center;gap:18px;
+    background:#fff;
+    border:1px solid var(--border2);border-radius:18px;
+    padding:22px 26px;transition:.25s cubic-bezier(.4,0,.2,1);
+    position:relative;overflow:hidden;
+  }
+  .contact-card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg,var(--brand),#e23b3b);
+    opacity:0;transition:opacity .25s;
+  }
+  .contact-card:hover::before{opacity:1}
+  .contact-card:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      0 4px 12px rgba(183,28,28,.08),
+      0 20px 48px rgba(183,28,28,.10),
+      0 32px 64px rgba(0,0,0,.04);
+    border-color:rgba(183,28,28,.20);
+  }
+  .contact-card .ic{
+    flex:0 0 auto;width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+    color:var(--red);
+    position:relative;
+  }
+  .contact-card .meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .contact-card .lab{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+  .contact-card .val{font-size:18px;font-weight:700;color:var(--text);font-family:var(--mono);word-break:break-all;letter-spacing:-.3px}
+  .contact-card:hover .val{color:var(--red)}
+
+  /* ---------- disclaimer / load-more ---------- */
+  .disc{
+    display:flex;align-items:center;gap:9px;
+    font-size:12.5px;color:var(--muted);background:var(--panel);border:1px dashed var(--border2);
+    border-radius:10px;padding:10px 16px;
+  }
+  .disc .ic{color:var(--yellow);font-size:15px;flex:0 0 auto}
+  .disc b{color:var(--text)}
+  .load-more{display:block;margin:18px auto 0;padding:11px 26px;border:1px solid var(--border2);background:#fff;color:var(--muted);border-radius:20px;font-size:13px;cursor:pointer;transition:.15s}
+  .load-more:hover{border-color:var(--red);color:var(--red)}
+
+  /* ---------- 每日分享海报（Ardot 准则：精致层次 + 品牌感 + 微交互） ---------- */
+  .poster-section{
+    border-top:1px solid var(--border);
+    padding:52px 24px 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  /* 装饰：极淡品牌光晕（左上 + 右下 对角平衡） */
+  .poster-section::before{
+    content:"";position:absolute;top:-40px;left:-60px;width:360px;height:360px;
+    background:radial-gradient(circle,rgba(183,28,28,.045) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .poster-section::after{
+    content:"";position:absolute;bottom:-80px;right:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(183,28,28,.035) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .poster-wrap{
+    display:flex;flex-direction:column;align-items:center;gap:20px;
+    position:relative;z-index:1;
+  }
+  .poster-frame{
+    width:100%;max-width:460px;border-radius:18px;overflow:hidden;
+    background:#fff;border:1px solid rgba(183,28,28,.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.8) inset,
+      0 2px 4px rgba(183,28,28,.04),
+      0 8px 24px rgba(183,28,28,.08),
+      0 24px 56px rgba(0,0,0,.05);
+    transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s ease;
+  }
+  .poster-frame:hover{
+    transform:translateY(-6px) scale(1.005);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.9) inset,
+      0 4px 10px rgba(183,28,28,.06),
+      0 16px 40px rgba(183,28,28,.12),
+      0 32px 72px rgba(0,0,0,.07);
+  }
+  .poster-frame img{ width:100%; height:auto;display:block; }
+  .poster-actions{ display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:6px; }
+  .poster-actions .btn{
+    text-decoration:none;padding:14px 30px;border-radius:13px;font-size:14px;font-weight:700;
+    border:none;cursor:pointer;transition:.25s cubic-bezier(.4,0,.2,1);letter-spacing:.3px;
+    position:relative;overflow:hidden;
+  }
+  .poster-actions .btn.primary{
+    background:linear-gradient(135deg,var(--brand),#d32f2f);color:#fff;
+    box-shadow:
+      0 4px 14px rgba(183,28,28,.28),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -2px 0 rgba(0,0,0,.08);
+  }
+  .poster-actions .btn.primary:hover{
+    transform:translateY(-2px);
+    box-shadow:
+      0 6px 20px rgba(183,28,38,.34),
+      inset 0 1px 0 rgba(255,255,255,.22),
+      inset 0 -2px 0 rgba(0,0,0,.08);
+    filter:brightness(1.04);
+  }
+  .poster-actions .btn.primary:active{
+    transform:translateY(0);
+    box-shadow:
+      0 2px 8px rgba(183,28,28,.24),
+      inset 0 1px 0 rgba(255,255,255,.12),
+      inset 0 2px 0 rgba(0,0,0,.12);
+  }
+  .poster-actions .btn.ghost{
+    background:#fff;color:#555;border:1.5px solid rgba(0,0,0,.10);
+    box-shadow:0 2px 8px rgba(0,0,0,.04),inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .poster-actions .btn.ghost:hover{
+    border-color:var(--red);color:var(--red);
+    background:linear-gradient(135deg,#fff,rgba(183,28,28,.03));
+    box-shadow:0 4px 12px rgba(183,28,28,.10),inset 0 1px 0 rgba(255,255,255,.9);
+    transform:translateY(-1px);
+  }
+  .poster-tip{
+    color:var(--muted);font-size:12.5px;text-align:center;line-height:1.8;
+    max-width:440px;padding:0 8px;opacity:.85;
+  }
+  .toast{
+    position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);
+    background:rgba(31,35,40,.95);color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:120;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr;gap:30px}
+    h1{font-size:34px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .regions,.tips{grid-template-columns:1fr}
+    .nav{flex-wrap:wrap;align-items:flex-start;gap:10px}
+    .brand{flex-direction:row;align-items:center;gap:7px}
+    .brand-line1{flex-direction:column;align-items:flex-start;gap:1px}
+    .brand .bn{font-size:18px}
+    .nav .right{flex-direction:row;align-items:center;gap:8px}
+    .disc{flex-direction:column;align-items:flex-start;gap:6px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ DATA（每日自动更新：由自动化脚本重写此对象） ============ -->
+<script id="brief-data" type="application/json">{
+  "date": "2026年08月31日",
+  "compileTime": "2026-08-31 07:00",
+  "source": "AI 联网检索 · 各地消防救援机构官方通报及权威媒体转载",
+  "range": "滚动更新 · 近 30 天",
+  "stats": {
+    "noReportRegions": 5,
+    "rangeLabel": "近30天"
+  },
+  "jiangxi": "有官方通报（7·12 南昌居民楼楼道电动车「飞线充电」火情、7·29 上饶玉山县居民楼液化气罐泄漏爆炸1死1伤、8·2 赣州南康工业园工厂刨花房起火、8·2 南昌某小区7楼阳台烟头引燃杂物起火（无伤亡）、8·4 吉安民房柴房火灾、8·6 萍乡一小轿车停放家门口起火（无伤亡）、8·13 吉安市赣江上一船只起火（疑因电池，无伤亡）、8·12 赣州大余花生麸自燃、8·16 南昌小区杂物间起火、8·18 南昌青云谱「网红」麻将馆自动麻将机电气线路故障起火（无伤亡））",
+  "megacities": [
+    {
+      "name": "北京市",
+      "status": "有官方通报（7·6 餐馆火情、7·21 昌平居民厨房火情、7·25 朝阳办公场所电气火情、8·16 大兴社区电动车车棚火情、8·3 怀柔庙城镇自建房卧室手机充电线路故障起火、8·18 大兴区一小区楼道杂物起火致6层两老人被困（无伤亡，已成功疏散））"
+    },
+    {
+      "name": "上海市",
+      "status": "有官方通报（7·28/7·31 多起居民楼起火、8·4 闵行中春路单位建筑起火、8·7 虹口新市南路小区非机动车起火、8·10 浦东万安街路边车辆起火、8·17 G2京沪高速面包车起火、8·19 青浦盈浦街道居民顶楼起火、8·19 G1503绕城高速集卡追尾起火、8·28 浦东张江松涛路单位实验室起火、8·30 松江车墩镇松南城善德苑小区居民家中起火（无伤亡））"
+    },
+    {
+      "name": "广州市",
+      "status": "有官方通报（7·12 酒店广告牌火情、8·24 天河区广州大道中一仓库火灾（无伤亡、8·28 荔湾区西华路一民房火灾（无人员伤亡，12人疏散））"
+    },
+    {
+      "name": "深圳市",
+      "status": "有官方通报（8·1 宝安西乡电动车充电桩、8·4 龙岗布吉停车场车辆起火、8·14 坪山马峦街道立体车库火情、8·21 罗湖桃园路奥特城楼顶火情）"
+    }
+  ],
+  "case": {
+    "date": "2026-08-30",
+    "location": "上海市松江区车墩镇大官塘路180弄松南城善德苑小区（8号楼10楼居民家）",
+    "category": "住宅/民房",
+    "summary": "8月30日13时50分，松江区车墩镇大官塘路180弄松南城善德苑小区一居民家中突发火灾，火焰从窗口翻滚蹿出、现场黑烟滚滚。松江区消防救援支队调派车墩、松江、仓桥、岳阳、九亭等站十余辆消防车到场处置，火灾很快被扑灭，造成事发居民家中物品烧毁、居民楼部分区域外立面被熏黑。无人员伤亡，起火原因正在进一步调查。",
+    "casualty": "无人员伤亡",
+    "cause": "起火原因正在进一步调查中",
+    "src": "松江区消防救援支队 / 新民晚报（2026年8月30日）"
+  },
+  "tips": [
+    "近两周住宅火灾11起居首：珠海3岁童玩打火机引燃床垫、湖州储藏室电动车充电电气故障、北京大兴楼道杂物困老人。打火机火柴锁高处别让孩子够到；楼道储藏室清空不堆货不飞线充；线路发烫焦味立即断电。",
+    "石家庄8·19燃气泄漏燃爆3死1伤，营口市场液化气罐受热爆炸。闻臭鸡蛋味别开灯别打电话：先关阀、轻手开窗、撤到室外再报警；装燃气报警器（液化气探头距地30cm），软管18个月一换，钢瓶别暴晒受热。",
+    "南宁8·28小区架空层、湖州8·24储藏室均因电动车充电电气故障起火。锂电池30秒起明火、3分钟上千度，泼水干粉难灭。只停室外专用车棚，严禁进架空层、楼道、储藏室、入户，不整夜飞线充。",
+    "湖州长兴8·28一工厂化学试剂燃烧致2死。危化品、化学试剂分类专库存放严禁混放，动火作业先审批清场监护，新员工熟疏散通道；闻到异昧先撤并报企业应急电话，禁盲目用水扑救遇水反应品。",
+    "马鞍山8·20市场油锅引燃油烟机、营口市场液化气罐受热爆炸。摊位后厨油锅起火盖锅盖断气源别泼水，油烟管道每月清，液化气罐直立远离火源受热、不超量存，收市断水断电清杂物。",
+    "8月底“秋老虎”仍高温，乌鲁木齐8·23半挂车头高温自燃；处暑后换季把空调插排断电体检。卧室装独立烟感，油锅盖锅盖，火超一人高低姿捂鼻走楼梯，先撤再打119说清楼层，门关好阻烟。"
+  ],
+  "notes": [
+    "本页数据由 AI 联网检索聚合，仅收录有官方消防部门来源的通报，包括各地消防救援机构官方发布、政府应急管理部门通报，以及权威媒体（央视新闻、新华社、央广网、中新网等）转载的官方信息。",
+    "不收录无明确官方来源的媒体报道或自媒体推测内容。",
+    "火灾原因与伤亡以官方通报为准，若官方未公布则标注待查明或正在调查中，不进行二次推测。",
+    "重点监测地区（江西、北京、上海、广州、深圳）若检索到官方通报则标注「官方通报」，未见官方通报则标注「未见官方通报（AI 检索）」，不代表确认安全。",
+    "数据滚动更新，由 AI 在每日多个时段联网检索并去重入库；每条火情以事件真实发生日期归档（非以检索当日计），非人工简报，可能存在检索延迟或遗漏。",
+    "媒体转载内容均注明原始官方来源。"
+  ],
+  "history": [
+    {
+      "date": "2026-08-29",
+      "location": "云南省昆明市官渡区金马街道一仓库",
+      "category": "仓储/物流",
+      "summary": "8月29日22时12分，昆明市官渡区金马街道一仓库发生火情，官渡区消防救援局接报后第一时间赶赴现场处置，于23时20分扑灭明火。该起火情无人员伤亡，起火原因正在调查。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "官渡区消防救援局火情通报（2026年8月30日发布）/ 央广网"
+    },
+    {
+      "date": "2026-08-30",
+      "location": "上海市松江区车墩镇大官塘路180弄松南城善德苑小区（8号楼10楼居民家）",
+      "category": "住宅/民房",
+      "summary": "8月30日13时50分，松江区车墩镇大官塘路180弄松南城善德苑小区一居民家中突发火灾，火焰从窗口翻滚蹿出、现场黑烟滚滚。松江区消防救援支队调派车墩、松江、仓桥、岳阳、九亭等站十余辆消防车到场处置，火灾很快被扑灭，造成事发居民家中物品烧毁、居民楼部分区域外立面被熏黑。无人员伤亡，起火原因正在进一步调查。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在进一步调查中",
+      "src": "松江区消防救援支队 / 新民晚报（2026年8月30日）"
+    },
+    {
+      "date": "2026-08-29",
+      "location": "四川省成都市都江堰市奎光塔街道一厂房",
+      "category": "工厂/车间",
+      "summary": "8月29日18时许，成都市都江堰市奎光塔街道一厂房发生火情，消防、应急等部门第一时间赶赴现场处置。截至都江堰市应急管理局、都江堰市消防救援局21时余通报，火情正在处置中，事故未造成人员伤亡，起火原因正在调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "都江堰市应急管理局 / 都江堰市消防救援局情况通报（2026年8月29日）"
+    },
+    {
+      "date": "2026-08-28",
+      "location": "浙江省湖州市长兴县浙江大川新材料股份有限公司厂房",
+      "category": "工厂/车间",
+      "summary": "8月28日7时47分，湖州市长兴县浙江大川新材料股份有限公司厂房发生火灾，消防、应急管理、公安、120急救等部门迅速前往处置，8时30分现场火势得到控制。事故导致2人失联，8月29日经核实2名失联人员均已遇难。初步调查系化学试剂燃烧引发，附近工厂玻璃被震碎、天花板脱落，具体物料类别及事故经过仍在进一步调查。",
+      "casualty": "2人死亡",
+      "cause": "初步调查系化学试剂燃烧引发（具体原因调查中）",
+      "src": "澎湃新闻 / 新京报 / 湖州市长兴县应急管理局通报（2026年8月28—29日）"
+    },
+    {
+      "date": "2026-08-28",
+      "location": "广西南宁市万科城南区10栋一楼架空层（电动自行车起火）",
+      "category": "住宅/民房",
+      "summary": "8月28日上午8时许，南宁市万科城南区10栋一楼架空层发生火灾，数十辆电动自行车起火、升起滚滚浓烟，多层楼外墙被熏黑。南宁市消防救援局获悉，火情得到快速处置，无人员伤亡。物业通报称因10栋架空层一辆电动自行车发生自燃引发火灾，10栋01户型12层以下外墙及部分户内受影响。",
+      "casualty": "无人员伤亡",
+      "cause": "架空层一辆电动自行车发生自燃引发火灾",
+      "src": "南国早报（2026年8月28日）/ 南宁市消防救援局"
+    },
+    {
+      "date": "2026-08-28",
+      "location": "上海市浦东新区张江松涛路一单位实验室（4楼）",
+      "category": "其他",
+      "summary": "8月28日下午3时左右，浦东新区张江松涛路上一单位发生火灾，起火部位为该单位4楼实验室，明火从多个窗口蹿出、现场黑烟滚滚。消防部门迅速调派力量到场处置，明火很快被扑灭，火灾造成该单位药剂和医药器材烧毁，无人员伤亡，具体起火原因仍在调查。",
+      "casualty": "无人员伤亡",
+      "cause": "具体起火原因调查中",
+      "src": "新民晚报（2026年8月28日）"
+    },
+    {
+      "date": "2026-08-28",
+      "location": "广东省广州市荔湾区西华路一民房（402房）",
+      "category": "住宅/民房",
+      "summary": "8月28日5时53分，荔湾区西华路一民房4楼（402房）突发火情，广州市荔湾区消防救援站接警后5时59分抵达现场，对402房起火点灭火冷却，并对401、404房实施破拆救援，成功救出3名及2名被困群众，共安全转移群众12人。6时50分现场火势彻底扑灭，过火面积约20平方米，起火物主要为室内家具，无人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "初步调查起火场所为居民住宅，起火物主要为室内家具（具体原因调查中）",
+      "src": "广州日报新花城 / 广州市消防救援支队（2026年8月28日）"
+    },
+    {
+      "date": "2026-08-26",
+      "location": "广西壮族自治区南宁市良庆区玉洞街道建源路1号某纸品企业仓库",
+      "category": "仓储/物流",
+      "summary": "8月26日23时45分，南宁市良庆区玉洞街道建源路1号某纸品企业仓库发生火情，消防救援、公安、应急等部门赶赴现场处置。火情已处置完毕，无人员被困和伤亡，起火原因正在调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "南宁市良庆区应急管理局情况通报（2026年8月27日发布）/ 南国早报"
+    },
+    {
+      "date": "2026-08-24",
+      "location": "福建省福州市闽侯县一工艺品厂房",
+      "category": "工厂/车间",
+      "summary": "8月24日6时08分，福州市闽侯县一工艺品厂房突发火灾，现场两名人員被困。福州市消防救援支队接到报警后先后调集11辆消防车、60名消防员到场处置，经五小时奋战将火灾扑灭，成功救出两名被困人员。",
+      "casualty": "无人员伤亡（2名被困人员成功救出）",
+      "cause": "起火原因正在进一步调查中",
+      "src": "中国新闻网（2026年8月24日）/ 福州市消防救援支队"
+    },
+    {
+      "date": "2026-08-24",
+      "location": "广东省广州市天河区广州大道中1430号一仓库",
+      "category": "仓储/物流",
+      "summary": "8月24日1时03分，广州市天河区广州大道中1430号一仓库发生火灾，市消防救援支队接报后调派力量赶赴现场处置，3时20分现场明火扑灭。起火建筑为铁皮仓库，主要燃烧物为衣服，燃烧面积约100平方米。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "广州消防警情通报（2026年8月24日）/ 南方+"
+    },
+    {
+      "date": "2026-08-24",
+      "location": "广东省珠海市金湾区西城街道某小区1栋602室（居民家中）",
+      "category": "住宅/民房",
+      "summary": "8月24日13时50分，珠海市金湾区西城街道某小区1栋602室居民家中发生火灾，金湾区消防救援大队接警后出动处置。经核查，起火原因为家中3岁幼童独自玩耍时把玩打火机，不慎引燃室内床垫及周边杂物。家长发现火情后报警并采取措施扑救，火灾被及时扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "3岁幼童玩打火机引燃室内床垫及周边杂物",
+      "src": "珠海消防（2026年8月25日发布）"
+    },
+    {
+      "date": "2026-08-24",
+      "location": "浙江省湖州市南太湖新区一居民小区一楼储藏室",
+      "category": "住宅/民房",
+      "summary": "8月24日凌晨，湖州南太湖新区一居民小区一楼储藏室因电动自行车充电发生电气故障引发火灾，停放在储藏室内的2辆电动车完全烧毁，消防救援力量到场后迅速出水枪压制并将明火扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "电动自行车充电发生电气故障引燃周边可燃物",
+      "src": "湖州消防（2026年8月25日发布）"
+    },
+    {
+      "date": "2026-08-23",
+      "location": "湖南省永州市冷水滩区珍珠路口剑桥学校斜对面居民楼",
+      "category": "住宅/民房",
+      "summary": "8月23日，永州市冷水滩区珍珠路口剑桥学校斜对面一栋居民楼楼顶突然起火，顶层烟雾弥漫、火势猛烈，现场有液化气罐、1名居民被困。消防救援力量到场处置，在三楼成功搜救出被困人员，经约三小时扑救大火被完全扑灭，共疏散20余人。",
+      "casualty": "无人员伤亡",
+      "cause": "火灾原因正在调查中",
+      "src": "永州消防 / 湖南消防（2026年8月23日）"
+    },
+    {
+      "date": "2026-08-23",
+      "location": "辽宁省营口市盖州市双台镇一处露天农贸市场摊位",
+      "category": "商场/市场",
+      "summary": "8月23日21时57分，盖州市双台镇一处露天农贸市场摊位发生火情，过火面积约180平方米，相关部门于22时48分将现场明火全部扑灭。经初步排查，起火原因为电气线路故障引燃摊位可燃物，摊位附近1个液化气罐体受热压力超限引发爆炸。",
+      "casualty": "无人员伤亡",
+      "cause": "电气线路故障引燃摊位可燃物，液化气罐体受热爆炸",
+      "src": "央广网（2026年8月24日）/ 盖州市双台镇人民政府情况通报"
+    },
+    {
+      "date": "2026-08-23",
+      "location": "贵州省赤水市人民南路文华砖厂小区",
+      "category": "住宅/民房",
+      "summary": "8月23日19时许，赤水市人民南路文华砖厂小区发生火情，经相关部门及时处置，已于23日20时15分扑灭。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在进一步调查中",
+      "src": "人民网（2026年8月24日）/ 赤水市应急管理局情况通报"
+    },
+    {
+      "date": "2026-08-23",
+      "location": "新疆乌鲁木齐市小草湖公安检查站（一辆半挂货车车头）",
+      "category": "其他",
+      "summary": "8月23日22时许，乌鲁木齐市公安局达坂城区分局小草湖公安检查站执勤时，发现一辆载有多辆轿车的通行半挂货车车头下方突然蹿出火苗、冒出浓烟。执勤民辅警启动应急预案，引导车辆至安全区域、疏散周边车辆群众，利用灭火器经3分钟紧急处置将明火扑灭，无人员伤亡及货物损失。",
+      "casualty": "无人员伤亡、无货物损失",
+      "cause": "高温天气车辆自燃（半挂货车车头下方起火）",
+      "src": "央视新闻（2026年8月25日）/ 天山网（乌鲁木齐公安）"
+    },
+    {
+      "date": "2026-08-21",
+      "location": "山东临沂市沂河新区王桥社区一处独立平房院落（爆炸）",
+      "category": "住宅/民房",
+      "summary": "8月21日15时38分，临沂市沂河新区王桥社区内一处独立平房院落发生爆炸。公安、消防、应急、住建等相关部门成立联合工作组赶赴现场开展应急救援。截至目前，1人死亡、2人失联，其余受伤人员已送医救治、无生命危险。现场搜救清理仍在进行。经初步排查，疑似该院落租户非法储存捕鱼爆炸物引发爆炸，周边居民楼住户已妥善安置。",
+      "casualty": "1人死亡、2人失联（其余受伤人员送医救治、无生命危险）",
+      "cause": "初步排查疑似非法储存捕鱼爆炸物引发，原因调查及善后工作有序开展",
+      "src": "临沂市沂河新区消防救援大队/联合工作组情况通报（2026年8月21日）/ 央广网、央视新闻"
+    },
+    {
+      "date": "2026-08-21",
+      "location": "广东省深圳市罗湖区桃园路奥特城（楼顶火情）",
+      "category": "其他",
+      "summary": "8月21日上午，深圳市罗湖区桃园路奥特城（正顺广场）楼顶出现火情，市民拍摄视频可见大量浓烟。消防救援力量第一时间到场处置，11时20分火已扑灭，未造成人员伤亡。经现场核实，起火部位为大楼裙楼楼顶冷却机（初报称10楼起火系误报，已更正）。",
+      "casualty": "无人员伤亡",
+      "cause": "楼顶冷却机起火（具体原因调查中）",
+      "src": "深圳市消防救援支队（深圳晚报/香港商报，2026年8月21日）"
+    },
+    {
+      "date": "2026-08-20",
+      "location": "河北秦皇岛市海港区一底商（火灾）",
+      "category": "其他",
+      "summary": "8月20日3时40分左右，秦皇岛市海港区一底商发生火灾，消防、应急、卫健、公安等部门第一时间赶赴现场开展应急救援。4时30分，现场明火被扑灭。事故造成8人死亡、3人送医救治，伤者生命体征平稳。",
+      "casualty": "8人死亡、3人送医救治（伤者生命体征平稳）",
+      "cause": "事故原因调查及善后工作正在进一步开展",
+      "src": "秦皇岛市海港区人民政府情况通报（2026年8月20日）/ 央视新闻"
+    },
+    {
+      "date": "2026-08-20",
+      "location": "广东云浮市云城区南盛镇一包装厂房（深岑高速高架桥底）",
+      "category": "工厂/车间",
+      "summary": "8月20日9时30分许，云浮市云城区南盛镇七洞村委与大窝村委交界处（乡道656旁）一靠近深岑高速高架桥底的包装厂房发生火情。镇村干部第一时间赶赴现场，消防、卫健、公安、应急等力量迅速扑救，市消防支队、区消防救援大队与南盛镇消防队共调派10台消防车，11时许现场明火全部扑灭。事发厂房当日31名员工在岗全部安全疏散，深岑高速双向一度交通管制后恢复通行。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因、厂房相关情况待进一步调查",
+      "src": "云浮市云城区南盛镇人民政府（南方日报·南方+，2026年8月20日）"
+    },
+    {
+      "date": "2026-08-20",
+      "location": "安徽马鞍山市一市场沿街商铺",
+      "category": "商场/市场",
+      "summary": "8月20日8时许，马鞍山市某市场一沿街商铺突发火灾，起火点位于商铺灶台。经现场勘查，事故由油锅起火引燃油烟机及周边可燃物进而造成火势蔓延。消防处置及时，未造成人员伤亡。当地消防部门以该火场为实景课堂，向周边商户开展警示教育。",
+      "casualty": "无人员伤亡",
+      "cause": "油锅起火引燃油烟机及周边可燃物",
+      "src": "马鞍山市消防部门（澎湃新闻，2026年8月20日）"
+    },
+    {
+      "date": "2026-08-19",
+      "location": "河北石家庄新华区铁路55宿舍居民楼（燃爆坍塌）",
+      "category": "住宅/民房",
+      "summary": "8月19日5时42分，石家庄市新华区一四层居民楼（铁路55宿舍）一个单元的两户房屋发生部分坍塌。公安、消防、住建、应急等部门赶赴现场救援。经初步排查，疑似燃气泄漏引发燃爆造成房屋部分坍塌，周边住户已妥善安置。",
+      "casualty": "3人经送医抢救无效死亡、1人正在全力救治（生命体征平稳）",
+      "cause": "初步排查疑似燃气泄漏引发燃爆，原因调查中",
+      "src": "石家庄市新华区应急管理局续报（2026年8月19日）/ 央视新闻、中国新闻网"
+    },
+    {
+      "date": "2026-08-19",
+      "location": "上海青浦区盈浦街道海盈路一居民顶楼",
+      "category": "住宅/民房",
+      "summary": "8月19日9时07分，青浦区盈浦街道海盈路一居民顶楼发生火灾。119指挥中心接警后迅速调派消防力量到场处置，9时33分许火势被扑灭。",
+      "casualty": "无人员伤亡",
+      "cause": "火灾原因正在调查中",
+      "src": "新民晚报（2026年8月19日）"
+    },
+    {
+      "date": "2026-08-19",
+      "location": "上海G1503绕城高速内圈近S2沪芦高速大亭立交（集卡追尾起火）",
+      "category": "交通枢纽",
+      "summary": "8月19日10时许，G1503上海绕城高速内圈近S2沪芦高速大亭立交路段，一辆集卡与前方防撞缓冲车发生追尾，集卡冒烟起火。消防部门迅速到场处置，10时58分明火扑灭，事故处理12时许全部结束。",
+      "casualty": "无人员伤亡",
+      "cause": "事故原因正在调查中",
+      "src": "上观新闻（2026年8月19日）"
+    },
+    {
+      "date": "2026-08-18",
+      "location": "广东东莞清溪镇埔星东路一建材制品有限公司厂房",
+      "category": "工厂/车间",
+      "summary": "8月18日20时42分，东莞市消防救援支队指挥中心接报，位于清溪镇埔星东路一建材制品有限公司发生火灾。指挥中心立即调派周边消防力量到场处置，火势迅速得到控制。起火建筑为一栋二层的钢混结构厂房，燃烧物质主要为塑胶管件。",
+      "casualty": "无人员伤亡",
+      "cause": "火灾原因及财产损失正在调查中",
+      "src": "东莞市消防救援支队十大队警情通报（2026年8月18日）"
+    },
+    {
+      "date": "2026-08-18",
+      "location": "广西南宁西乡塘区安吉大道88号安津五金机电市场",
+      "category": "商场/市场",
+      "summary": "8月18日22时许，南宁市西乡塘区安吉大道88号某市场（安津五金机电市场）发生火情，起火点位于市场7栋，受当晚风向影响火苗蔓延至相邻5栋楼顶部分区域。消防部门第一时间赶赴现场救援，现场火情处置完毕。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "南宁市西乡塘区应急管理局情况通报（2026年8月19日）/ 光明网"
+    },
+    {
+      "date": "2026-08-18",
+      "location": "河南商丘梁园区一仓库",
+      "category": "仓储/物流",
+      "summary": "8月18日18时34分，商丘市梁园区一仓库发生火灾，消防部门到场处置，火势已扑灭。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "商丘市梁园区消防救援局火情通报（2026年8月19日）/ 河南日报"
+    },
+    {
+      "date": "2026-08-18",
+      "location": "江西省南昌市青云谱区一家“网红”麻将馆（自动麻将机）",
+      "category": "其他",
+      "summary": "8月18日22时10分，南昌市青云谱区一家「网红」麻将馆的自动麻将机突然着火并冒出浓烟，店员及时疏散顾客并报警，消防员到场时火势已被扑灭。火灾调查认定原因为麻将机电气线路故障。",
+      "casualty": "无人员伤亡",
+      "cause": "自动麻将机电气线路故障",
+      "src": "南昌消防（青云谱大队）（2026年8月18日）"
+    },
+    {
+      "date": "2026-08-18",
+      "location": "北京市大兴区一小区居民楼楼道（杂物起火困老人）",
+      "category": "住宅/民房",
+      "summary": "8月18日22时04分，大兴区一小区居民楼下传来呼救声，有居民发现5层楼梯拐角处冒出火光并伴浓烟，随即拨打119。北京市消防救援局指挥中心调派三羊消防救援站、亦庄消防站、老君堂小型站共7部消防车赶赴现场，经与社区微型消防站联动疏散楼内住户。起火点位于5层与6层楼道内堆放的杂物（购物车上的生活垃圾和废纸壳），浓烟沿楼梯蔓延，致6层2名老人被困。消防员架设水枪压制明火后很快扑灭，并成功将2名老人疏散至安全区域，未造成人员伤亡。经调查，起火原因为外来火源引燃堆积杂物。",
+      "casualty": "无人员伤亡",
+      "cause": "外来火源引燃楼道内堆积杂物（购物车上的生活垃圾和废纸壳）",
+      "src": "新京报（2026年8月26日报道）/ 大兴区消防救援局"
+    },
+    {
+      "date": "2026-08-17",
+      "location": "琼州海峡水域一艘作业渔船",
+      "category": "其他",
+      "summary": "8月17日清晨，琼州海峡水域一艘作业渔船突发火情，船上8名船员陷入险境。海口海上搜救分中心立即调度执行“护航开渔”任务的两艘海巡轮赶往现场，并联动湛江渔政执法力量同步驰援；海南海事局通过船舶交通管理系统实时监控水域，持续播发航行警告，引导过往船舶避让、协助救援。多方救援力量协同作战，不到一小时成功扑灭火势，所有遇险船员目前已安全转移。",
+      "casualty": "无人员伤亡（8名船员全部安全转移）",
+      "cause": "调查中（渔船突发火情，原因待查）",
+      "src": "央视新闻（交通运输部海事局通报，2026年8月17日发布）"
+    },
+    {
+      "date": "2026-08-17",
+      "location": "重庆沙坪坝区天星桥街道红槽房94栋1楼（居民楼）",
+      "category": "住宅/民房",
+      "summary": "8月17日21时16分，沙坪坝区天星桥街道红槽房94栋1楼发生火灾，火势一度蔓延至楼顶。接报后，消防救援力量第一时间赶赴现场处置，22时55分现场明火被扑灭。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因正在调查中",
+      "src": "重庆市沙坪坝区消防救援局情况通报（2026年8月18日发布）"
+    },
+    {
+      "date": "2026-08-17",
+      "location": "安徽合肥经开区融创城融合园3栋18楼（空调外机起火）",
+      "category": "住宅/民房",
+      "summary": "8月17日22时20分许，合肥市融创城融合园3栋18楼突发明火并冒出黑烟，业主呼喊提醒邻居避险、多人携家下楼。当地消防到场处置，确认系空调外机起火，火势不严重，无人伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "空调外机起火，原因尚在调查中",
+      "src": "合肥市经开区消防大队徽园消防站回应（潇湘晨报2026年8月18日报道）"
+    },
+    {
+      "date": "2026-08-17",
+      "location": "G2京沪高速上海段近汽车城收费站（面包车起火）",
+      "category": "交通枢纽",
+      "summary": "8月17日16时许，G2京沪高速往江苏方向近汽车城收费站，一辆面包车停在最右侧应急车道起火，现场黑烟滚滚，车上人员已及时下车。交警、消防等部门到场扑救，车辆烧成空壳，17时15分事故处理完毕。",
+      "casualty": "无人员伤亡",
+      "cause": "车辆起火原因有待调查",
+      "src": "新民晚报/上观新闻（2026年8月18日）"
+    },
+    {
+      "date": "2026-08-16",
+      "location": "浙江省绍兴市诸暨市店口镇百事得塑胶有限公司厂房",
+      "category": "工厂/车间",
+      "summary": "2026年8月16日11时06分，诸暨市消防救援局指挥中心接到报警称绍兴市诸暨市店口镇百事得塑胶有限公司厂房发生火灾。诸暨市消防救援局立即调派救援力量前往处置，火灾正在扑救中，未造成人员伤亡。请广大市民关注官方信息，不信谣、不传谣。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（官方通报未说明起火原因）",
+      "src": "诸暨市消防救援局通报（绍兴网，2026年8月16日发布）"
+    },
+    {
+      "date": "2026-08-16",
+      "location": "浙江省杭州市地铁1号线（往萧山国际机场方向）一列车车厢",
+      "category": "交通枢纽",
+      "summary": "2026年8月16日11时许，杭州地铁1号线往萧山国际机场方向一列车上，一名乘客的充电宝自燃冒烟。车上乘客使用灭火器处置，杭港地铁安排列车于打铁关站清客退出服务，车站工作人员第一时间处置，该情况未造成乘客安全影响。目前地铁1号线发车间隔已恢复正常。",
+      "casualty": "无人员伤亡（未造成乘客安全影响）",
+      "cause": "乘客充电宝自燃冒烟",
+      "src": "杭港地铁官方通报（2026年8月16日11时许发布，钱江视频/微博转载）"
+    },
+    {
+      "date": "2026-08-16",
+      "location": "北京市大兴区一社区电动自行车车棚",
+      "category": "其他",
+      "summary": "8月16日16时24分，大兴区消防救援局接到居民报警，称一社区内电动自行车车棚起火。消防救援站到场前，火势已被社区微型消防站队员用灭火器扑灭，避免了车棚火烧连营。为防止复燃，消防救援人员将电动自行车电瓶放入注满水的垃圾桶内冷却降温。",
+      "casualty": "无人员伤亡",
+      "cause": "电动自行车锂电池热失控",
+      "src": "北京市大兴区消防救援局（法治进行时/光明网）"
+    },
+    {
+      "date": "2026-08-16",
+      "location": "江西南昌市某小区1楼杂物间",
+      "category": "住宅/民房",
+      "summary": "8月16日，南昌市某小区1楼杂物间发生火灾，消防员接警到场将火扑灭后，就地以案说法，提醒居民不要违规停放电动自行车。",
+      "casualty": "无人员伤亡",
+      "cause": "起火原因未通报（现场提醒勿违规停放电动自行车）",
+      "src": "南昌消防（江西消防，2026年8月）"
+    },
+    {
+      "date": "2026-08-15",
+      "location": "福建省厦门市海沧区一小区（12层钢混结构住宅）",
+      "category": "住宅/民房",
+      "summary": "8月15日凌晨2时39分，厦门市海沧区一小区发生火灾，厦门市消防救援支队指挥中心接报后调派兴港、港区、新阳消防救援站42名消防救援人员、7辆消防车赶赴现场处置。消防救援人员到场后发现火势较大、有1人被困，立即开展救援并组织楼内人员疏散；凌晨3时3分成功救出被困人员，但经现场120确认已无生命迹象，3时9分现场明火被扑灭。初步了解，着火建筑为12层钢混结构，过火面积约5平方米，着火物为电气线路及杂物，非涉电动自行车火灾。",
+      "casualty": "1人死亡",
+      "cause": "调查中（初步了解着火物为电气线路及杂物）",
+      "src": "厦门市消防救援支队警情通报（厦门消防，2026年8月15日发布）"
+    },
+    {
+      "date": "2026-08-15",
+      "location": "贵州贵阳花溪区孟关乡一栋自建房",
+      "category": "住宅/民房",
+      "summary": "8月15日19时许，贵阳市花溪区孟关乡一栋自建房突发火灾，屋内一位老人被群众及时发现并疏散，明火几分钟后被扑灭。初步调查起火原因疑似卧室电气线路老化接触不良短路引燃周边可燃物。",
+      "casualty": "无人员伤亡",
+      "cause": "初步调查疑似卧室电气线路老化接触不良短路引燃周边可燃物",
+      "src": "贵州消防（2026年8月20日报道）"
+    },
+    {
+      "date": "2026-08-15",
+      "location": "宁夏中卫市三雅化工厂（双氧水车间废水回收池）",
+      "category": "工厂/车间",
+      "summary": "8月15日晚20时10分，宁夏中卫市三雅化工厂发生火灾，起火部位为紧挨双氧水制造车间的废水回收利用池，火焰高达近10米，左侧为6个易燃易爆芳烃及有毒工作液储罐，情况危急。中卫市消防支队调派5车30人扑救，约1小时扑灭，未造成人员伤亡和重大财产损失。初步原因系车间排放酸性与碱性液体处置不当发生化学反应起火。",
+      "casualty": "无人员伤亡",
+      "cause": "酸性与碱性液体处置不当发生化学反应起火（初步）",
+      "src": "中卫市消防救援支队（人民网银川/环球网，2026年8月16日）"
+    },
+    {
+      "date": "2026-08-14",
+      "location": "广东省深圳市坪山区马峦街道一立体车库（比亚迪试验及报废车辆专用停放区）",
+      "category": "其他",
+      "summary": "8月14日2时48分，深圳市坪山区马峦街道一立体车库发生火情，市区两级应急、消防等部门第一时间赶赴现场处置，火势已扑灭，无人员伤亡。比亚迪方面回应称，该车库为公司的试验及报废车辆专用停放区。起火原因官方尚未通报。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（官方尚未通报起火原因）",
+      "src": "深圳市坪山区应急管理通报（AASTOCKS/港股报道转载）"
+    },
+    {
+      "date": "2026-08-14",
+      "location": "贵州省贵阳市南明区富源中路一自建房",
+      "category": "住宅/民房",
+      "summary": "8月14日10时05分，贵阳市南明区富源中路一自建房发生火灾。接到报警后，贵阳市消防救援局迅速调派救援力量成功将明火扑灭，火灾造成1人死亡，目前起火原因及财产损失正在进一步调查中。",
+      "casualty": "1人死亡",
+      "cause": "起火原因及财产损失正在进一步调查中",
+      "src": "贵阳市消防救援局（贵阳消防，2026年8月）"
+    },
+    {
+      "date": "2026-08-13",
+      "location": "福建省宁德市福安市甘棠镇世纪华海（福建）船舶重工有限公司（华海船厂）",
+      "category": "工厂/车间",
+      "summary": "2026年8月13日13时09分，福安市甘棠镇世纪华海（福建）船舶重工有限公司（华海船厂）内一艘船舶着火。福安市消防救援局调派力量前往处置，13时25分辖区站到场展开灭火救援；14时10分现场突然发生爆炸，造成10名消防救援人员和2名群众受伤，均已送医救治。18时50分，1名消防救援人员（宁德消防专职队员池坷杰，23岁）经抢救无效不幸牺牲。目前火势已得到有效控制，起火原因正在进一步调查中。",
+      "casualty": "1人死亡，12人受伤（10名消防救援人员和2名群众受伤，其中1名消防员经抢救无效牺牲）",
+      "cause": "调查中（船厂内作业船舶起火后发生爆炸）",
+      "src": "福安市消防救援局《火灾情况通报（二）》（2026年8月13日发布，新华社/央视新闻/法治日报转载）"
+    },
+    {
+      "date": "2026-08-13",
+      "location": "江西省吉安市赣江上一艘船只",
+      "category": "其他",
+      "summary": "8月13日，吉安市赣江上一艘船只发生火情，现场浓烟滚滚，多辆消防车到场救援。8月14日，吉安市政府部门工作人员表示事故未造成人员伤亡，经初步了解可能因电池引发火情；当地生态环境部门已介入对水体采样检测，未引发次生损害。吉安市应急管理局表示事故由消防救援部门处置调查。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（初步了解可能因电池引发火情）",
+      "src": "新京报（吉安市政府部门、吉安市应急管理局、吉安市消防救援支队确认）"
+    },
+    {
+      "date": "2026-08-13",
+      "location": "辽宁省沈阳市皇姑区鸭绿江北街333号",
+      "category": "其他",
+      "summary": "8月13日11时42分，沈阳市皇姑区鸭绿江北街333号发生火情。区消防、应急等部门及时到达现场处置，火势已得到有效控制，无人员伤亡。起火原因正在调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "皇姑区消防救援大队《情况通报》（智汇皇姑发布，环球网/沈阳晚报转载）"
+    },
+    {
+      "date": "2026-08-13",
+      "location": "广西钦州市钦南区犀牛脚镇一公司仓库顶棚",
+      "category": "仓储/物流",
+      "summary": "8月13日，钦州市钦南区犀牛脚镇一公司仓库顶棚起火，钦州市消防救援局接警后调派力量扑救，过火面积800平方米、直接财产损失22000元，未造成人员伤亡。经调查，起火原因为作业人员实施电焊作业时，高温电弧及熔融物引燃透明波纹塑料围护构件并蔓延成灾。陆某、余某无证违规电焊被行政拘留10日，涉事公司被罚款13000元。",
+      "casualty": "无人员伤亡",
+      "cause": "无证电焊作业高温电弧引燃仓库波纹塑料围护构件",
+      "src": "广西钦州消防（2026年8月，违规动火通报）"
+    },
+    {
+      "date": "2026-08-12",
+      "location": "浙江省嘉兴市海盐县西塘桥街道杭州湾大道浙江协和首信钢业有限公司3号厂房屋顶",
+      "category": "工厂/车间",
+      "summary": "2026年8月12日12时46分许，海盐县西塘桥街道杭州湾大道浙江协和首信钢业有限公司3号厂房屋顶光伏板发生火情。县消防、应急等部门第一时间赶赴现场开展应急处置，人员已安全疏散、无伤亡情况，火势已基本控制，起火原因正在进一步调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（厂房屋顶光伏板起火）",
+      "src": "海盐县人民政府西塘桥街道办事处《情况通报》（海盐经开区发布，中新经纬转载）"
+    },
+    {
+      "date": "2026-08-12",
+      "location": "广东省江门市开平市长沙街道八一车汇城一商铺",
+      "category": "商场/市场",
+      "summary": "2026年8月12日21时09分，江门市消防救援支队指挥中心接到报警称开平市长沙街道附近一商铺着火，立即调派救援力量前往处置。现场核查发现起火建筑为开平八一车汇城的商铺，主要燃烧物质为PE、PVC水管等配件，过火面积约250平方米，无人员伤亡。22时49分许明火被扑灭，具体起火原因正在调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "江门市消防救援支队警情通报（江门消防，2026年8月13日发布，南方都市报N视频/大河报转载）"
+    },
+    {
+      "date": "2026-08-12",
+      "location": "云南瑞丽勐卯街道北麓社区帕色村民小组226号",
+      "category": "住宅/民房",
+      "summary": "8月12日18时许，瑞丽市勐卯街道北麓社区帕色村民小组226号发生火灾。瑞丽市调集消防救援力量21车74人赶赴现场扑救，截至20时10分火势得到控制，正在清理内部余火。",
+      "casualty": "无人员伤亡、无被困",
+      "cause": "（未通报）",
+      "src": "瑞丽市消防救援局情况通报（2026年8月12日）/ 光明网"
+    },
+    {
+      "date": "2026-08-12",
+      "location": "江西赣州市大余县一居民家（铁皮棚）",
+      "category": "住宅/民房",
+      "summary": "8月12日2时许，赣州市大余县一居民家突然起火，消防救援人员到场后迅速将明火扑灭，未造成人员伤亡。据户主介绍，事发前一天晚将新压榨的花生麸堆放在院子铁皮棚内，深夜花生麸积热自燃并引燃周边杂物。",
+      "casualty": "无人员伤亡",
+      "cause": "新压榨花生麸堆放不当积热自燃",
+      "src": "赣州消防（2026年8月）"
+    },
+    {
+      "date": "2026-08-12",
+      "location": "广东省中山市三乡镇塘敢村某电动车行",
+      "category": "商场/市场",
+      "summary": "8月12日凌晨4时52分许，广东省中山市三乡镇塘敢村一电动车行一楼突发火灾，过火面积约80平方米，烧损、烧毁电动自行车70余辆。店内联网式烟感报警器及时警报叫醒店主夫妇，一道新砌的实体墙（防火分隔）有效隔绝火势和浓烟向二楼住宿区蔓延，二人从后侧楼梯安全疏散、毫发无伤。消防接警后迅速到场扑灭明火，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（电动车行火灾，电池爆燃）",
+      "src": "广东省消防救援总队/中山市消防救援支队六大队（南方+、法治日报、人民网转载，2026年8月15日）"
+    },
+    {
+      "date": "2026-08-10",
+      "location": "广西壮族自治区南宁市兴宁区广西动力技工学校（兴宁校区）一在建工地",
+      "category": "学校/教育机构",
+      "summary": "2026年8月10日中午12时许，广西动力技工学校一在建工地发生火灾，现场大量黑色浓烟从建筑内部涌出。救援力量第一时间到场处置，于12时20分将明火扑灭、处置完毕。事故造成一名施工人员受伤（被困后从楼上坠下），伤员已被送往医院救治，目前无生命危险。起火原因正在调查中。",
+      "casualty": "1人受伤（施工人员坠楼，无生命危险）",
+      "cause": "调查中（在建工地施工作业）",
+      "src": "南宁市兴宁区应急管理局《情况通报》（南宁兴宁发布，澎湃新闻/南国早报转载）"
+    },
+    {
+      "date": "2026-08-10",
+      "location": "浙江省嘉兴市嘉善县魏塘街道施家北路沿街一店铺",
+      "category": "商场/市场",
+      "summary": "2026年8月10日16时13分，嘉善县魏塘街道施家北路沿街一店铺发生火情，现场有人员从起火建筑内撤离。接到警情后，县消防、应急等部门立即赶赴现场处置，截至17时06分明火已扑灭，无人员伤亡。起火原因正在进一步调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "嘉善县魏塘街道办事处《情况通报》（潮新闻转载）"
+    },
+    {
+      "date": "2026-08-10",
+      "location": "上海市浦东新区万安街近新行路路口（路边停车泊位）",
+      "category": "其他",
+      "summary": "8月10日中午，浦东新区万安街近新行路路口一辆停在路边泊位的白色轿车突然从底盘冒烟后起火，火势迅速蔓延并引燃前方一辆黑色SUV车尾，现场浓烟滚滚。消防部门接警后调派多辆消防车到场，出水枪控火，明火很快被完全扑灭，火势未向周边商铺和其他车辆蔓延。两车均烧毁烧损，无人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（车辆自燃，疑高温季电路/油路故障）",
+      "src": "上海市消防部门到场处置（新民晚报/上观新闻 2026-08-11 报道）"
+    },
+    {
+      "date": "2026-08-09",
+      "location": "浙江省宁波市海曙区某公共充电场站（海西明月小区对面）",
+      "category": "其他",
+      "summary": "8月9日上午，宁波市海曙区一公共充电场站内一辆新能源汽车（极氪7X）在前机器盖打开状态下突发过热起火，白烟弥漫并伴有巨响。消防部门第一时间到达现场并妥善处置，事故未造成人员伤亡。经初步核实，涉事车辆近期曾发生严重碰撞事故，事故后未通过品牌官方授权服务中心检测及维修，具体原因以相关部门最终调查结论为准。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（车辆曾严重碰撞后未规范检测维修，动力电池热失控嫌疑）",
+      "src": "消防部门现场处置 + 极氪官方《情况说明》（南方都市报N视频、上观新闻报道）"
+    },
+    {
+      "date": "2026-08-08",
+      "location": "湖南省长沙市开福区秀峰街道乾隆世家26栋2单元东北角空地",
+      "category": "其他",
+      "summary": "8月8日16时14分，长沙市消防救援支队接报警称，开福区秀峰街道乾隆世家26栋2单元东北角空地发生火灾。支队立即调派鹅秀、金霞、伍家岭、特勤二站共12车57名消防救援人员赶赴现场。16时25分鹅秀消防救援站到场，经勘察为露天堆垛起火，起火物质主要为轮胎和塑料管；16时58分许明火被扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（露天堆垛轮胎、塑料管起火）",
+      "src": "长沙市消防救援支队（长沙晚报·掌上长沙/人民日报人民号转载）"
+    },
+    {
+      "date": "2026-08-08",
+      "location": "湖南省湘西土家族苗族自治州吉首市峒河街道一居民楼（峒河新村）",
+      "category": "住宅/民房",
+      "summary": "2026年8月8日17时15分许，湖南省湘西土家族苗族自治州吉首市峒河街道一居民楼（峒河新村）二楼卧室起火，屋内共有4名儿童被困。消防救援人员到场后迅速架设水枪压制火势并破拆入户门，救出室内2名儿童；同时周边群众利用角磨机破窗，将阳台呼救的2名儿童救出。4名儿童经医院检查均无生命危险、体表无明显外伤。经现场初步了解，疑似一名4岁儿童在卧室玩火引燃周边可燃物。火灾具体原因及财产损失仍在调查核实中。",
+      "casualty": "无人员伤亡（4名被困儿童全部获救，均无生命危险）",
+      "cause": "调查中（初步了解疑似4岁儿童玩火引燃可燃物）",
+      "src": "湖南消防/广东消防、央视新闻、中国消防、湘西州政府网（广东消防2026年8月14日发布）"
+    },
+    {
+      "date": "2026-08-08",
+      "location": "山东省青岛市胶州市一处厂房仓库",
+      "category": "工厂/车间",
+      "summary": "2026年8月8日上午，山东省青岛市胶州市一处厂房仓库突发火灾，现场浓烟冲天。胶州市应急管理局核实通报，火情发生后消防救援人员第一时间赶赴现场处置，当日上午明火已完全扑灭，未造成人员被困、人员伤亡。起火根源及具体涉事企业、详细地址、仓储品类有待官方后续披露。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（官方暂未公布起火诱因）",
+      "src": "胶州市应急管理局官方核实通报（2026年8月8日，生活帮/头条转载）"
+    },
+    {
+      "date": "2026-08-08",
+      "location": "广东省揭阳市普宁市燎原街道乌石村一店铺",
+      "category": "商场/市场",
+      "summary": "8月8日凌晨1时26分许，广东揭阳普宁市燎原街道乌石村一店铺起火。119指挥中心调派消防救援力量到场，起火建筑为2层钢筋混凝土结构楼房，1楼猛烈燃烧、有1名群众被困二楼窗边。消防救援人员架设拉梯破拆窗户疏散被困群众并出水枪灭火，明火扑灭、人员转移，未造成伤亡。该楼房首层完全过火烧损，二楼因店主加装的防火门完好无损——一道防火门隔出了生机。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（下店上宅场所火灾）",
+      "src": "广东省消防救援总队（gd.119.gov.cn，2026年8月16日发布）"
+    },
+    {
+      "date": "2026-08-07",
+      "location": "上海市虹口区新市南路新三小区（非机动车停车区域）",
+      "category": "住宅/民房",
+      "summary": "8月7日凌晨4时左右，虹口区新市南路新三小区内突发火灾，居民听到室外传来爆裂声响，发现小区内一处区域起火、火势窜至数米高、黑烟滚滚，随即报警。消防部门接报后派出多辆消防车到场处置，经扑救火势被扑灭。起火部位为小区内一处非机动车停车区域附近，相关部门正在进一步调查起火原因。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（非机动车停车区域附近起火，原因待查）",
+      "src": "新民晚报报道（消防部门到场处置）"
+    },
+    {
+      "date": "2026-08-07",
+      "location": "广东省清远市一栋两层民房",
+      "category": "住宅/民房",
+      "summary": "8月7日凌晨3时，广东清远一栋两层民房发生火灾，房内一家五口被困、情况紧急。清远消防接警到达后，发现着火位置位于一楼客厅，燃烧物质主要为家具；消防员对一楼窗户防盗网进行破拆后进入屋内开门，分别在一楼卧室、二楼卧室和楼顶救出两名女孩、一对母子及一名男子，逐一将五人安全转移屋外，无人员伤亡。",
+      "casualty": "无人员伤亡（一家五口全部安全转移）",
+      "cause": "调查中（民房一楼客厅家具起火，原因待查）",
+      "src": "广东省消防救援总队官方微博（清远消防）"
+    },
+    {
+      "date": "2026-08-07",
+      "location": "安徽省合肥市宿松路某医院4楼（内镜纯水机）",
+      "category": "其他",
+      "summary": "8月7日凌晨2时许，合肥市宿松路某医院4楼一用于消毒的内镜纯水机冒烟起火。医院火灾自动报警系统第一时间警报，自动喷水灭火、机械排烟设施启动；值班护士确认后拨打119并初期扑救，同时将相邻病房4名患者转移至安全区域。辖区救援站到场时明火已扑灭、烟气消散，未造成人员伤亡。经初步调查疑似设备故障引发。",
+      "casualty": "无人员伤亡",
+      "cause": "医疗设备（内镜纯水机）故障疑似引发",
+      "src": "合肥市消防救援支队（中国消防/安徽消防案例警示，2026年8月）"
+    },
+    {
+      "date": "2026-08-06",
+      "location": "浙江省杭州市拱墅区环城北路隧道（西向东方向）",
+      "category": "其他",
+      "summary": "8月6日11时许，杭州消防指挥中心接到报警：拱墅区环城北路隧道西向东方向一轿车发生自燃，隧道内涌出大量浓烟，明火自车辆底盘窜出。杭州消防立即调派救援力量赶赴处置，11时20分许救援力量到场，11时40分火势被扑灭。交警同步启动隧道封闭与地面分流，11时39分人员全部安全撤离，13时05分现场施救结束、管制措施取消恢复通行。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（车辆自燃，起火原因仍在调查）",
+      "src": "杭州市消防救援支队官方微博通报（2026年8月6日，杭州网/潮新闻·钱江晚报转载）"
+    },
+    {
+      "date": "2026-08-06",
+      "location": "湖南省长沙市宁乡市八一社区八一东路102号（行驶中电动自行车）",
+      "category": "其他",
+      "summary": "8月6日16时55分，长沙市消防救援支队接到报警称，宁乡市八一社区八一东路102号一辆电动自行车行驶途中突发险情。宁乡市消防救援局玉潭消防救援站迅速出动，现场侦察确认起火电动车行驶中突然冒烟，蓄电池电解液持续分解、壳体变形鼓包，冒出大量浓烟，随时可能热失控爆燃。指挥员下令铺设干线水管、出一支水枪，对故障电瓶持续喷水降温，17时许火情隐患完全清零，未造成人员伤亡和周边财产损失。",
+      "casualty": "无人员伤亡",
+      "cause": "电动自行车锂电池热失控（蓄电池电解液分解、壳体鼓包）",
+      "src": "宁乡市消防救援局玉潭消防救援站（长沙晚报·掌上长沙）"
+    },
+    {
+      "date": "2026-08-06",
+      "location": "云南宣威市乐丰乡建文村委会乌撒村民小组（火把节意外燃烧）",
+      "category": "其他",
+      "summary": "8月6日20时30分许，宣威市乐丰乡建文村委会乌撒村民小组群众过火把节，在用可燃液体引燃火把过程中，盛有可燃液体的塑料桶意外倾倒并引发燃烧，造成现场多名群众灼伤。",
+      "casualty": "16人受伤（不同程度灼伤，伤者正在医院治疗，伤情平稳）",
+      "cause": "盛有可燃液体的塑料桶意外倾倒引发燃烧",
+      "src": "宣威市人民政府新闻办公室情况通报（2026年8月8日）/ 央广网"
+    },
+    {
+      "date": "2026-08-06",
+      "location": "江西省萍乡市一小轿车（停放家门口）",
+      "category": "其他",
+      "summary": "8月6日14时26分，萍乡消防接到群众报警，一辆停放在家门口的黑色小轿车突发起火，整车处于猛烈燃烧阶段、浓烟滚滚。消防救援人员迅速架设水枪扑救，明火被扑灭后持续出水冷却防止复燃。",
+      "casualty": "无人员伤亡",
+      "cause": "车辆起火（具体原因调查中）",
+      "src": "萍乡市消防救援支队（中国消防转载，2026年8月）"
+    },
+    {
+      "date": "2026-08-05",
+      "location": "广西壮族自治区百色市右江区拉域村中屯45号民房二楼",
+      "category": "住宅/民房",
+      "summary": "8月5日21时45分，百色市右江区拉域村中屯45号民房二楼发生火灾。消防部门接报后第一时间赶赴现场开展扑救处置，22时03分火势被扑灭，未造成人员伤亡。官方同步提示广大市民不要惊慌、不信谣不传谣。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（起火原因正在进一步调查）",
+      "src": "百色市右江区消防救援局情况通报（2026年8月6日发布，右江融媒/新浪财经转载）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "广西壮族自治区南宁市上林县澄泰乡象山工业园区广西上林县林发松香有限公司一车间",
+      "category": "工厂/车间",
+      "summary": "8月4日16时26分许，上林县澄泰乡象山工业园区广西上林县林发松香有限公司一车间起火。接报后，上林县委、县政府立即组织消防救援、公安、应急等部门赶赴现场处置，组织开展灭火工作。经初步排查，现场无人员被困和伤亡。松香属易燃化工品，火势伴有明显浓烟。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（松香生产车间起火，具体原因待认定）",
+      "src": "上林县消防救援大队情况通报（上林发布 / 新浪财经转载）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "广东省深圳市龙岗区布吉街道木棉湾社区湖西路立体停车场8楼",
+      "category": "其他",
+      "summary": "8月4日4时34分许，龙岗区布吉街道木棉湾社区湖西路立体停车场8楼一汽车着火。龙岗区消防、应急部门接报后第一时间前往处置，5时25分扑灭明火。初步判断过火面积约1平方米，无人员伤亡，具体起火原因正在进一步调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（停车场内车辆起火，原因待查）",
+      "src": "深圳龙岗区应急管理情况通报（央视网转载）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "云南省昆明市晋宁区二街镇云南浩明精细磷化工有限公司厂内（黄磷装卸区）",
+      "category": "工厂/车间",
+      "summary": "8月4日11时50分许，晋宁区二街镇云南浩明精细磷化工有限公司厂内在黄磷装卸过程中发生火情事故。晋宁区第一时间组织应急、消防、生态环保、公安、卫健、园区管委会、属地乡镇成立现场指挥部处置，紧急疏散厂区员工及附近居民1257人，涉事企业停产停业，明火于当日22时07分扑灭。黄磷燃烧烟尘致事发区域空气中五氧化二磷浓度短时升高，经「截源控污」处置，至8月5日8时已呈下降趋势。",
+      "casualty": "无人员伤亡（疏散1257人）",
+      "cause": "调查中（黄磷装卸过程中起火，具体原因正在全面调查核实）",
+      "src": "昆明市晋宁区人民政府情况通报（2026年8月5日发布，新华社/中新网/中国网转载）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "湖北省武汉市天河国际机场（南京飞贵阳 9H8470 航班客舱）",
+      "category": "交通枢纽",
+      "summary": "8月4日22时30分左右，由南京飞往贵阳的长安航空9H8470航班上，一名旅客随身携带的充电宝发生自燃。乘务组按机上锂电池冒烟失火应急程序完成处置，机上无人员受伤，飞机状况良好；经机组决策，航班于22时50分安全备降武汉天河国际机场，地面检查确认飞机状态安全适航。",
+      "casualty": "无人员伤亡",
+      "cause": "旅客随身携带的充电宝（锂电池）自燃",
+      "src": "长安航空官方情况通报（2026年8月5日发布，每日经济新闻/界面新闻转载）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "上海市闵行区中春路近联农路一单位建筑",
+      "category": "其他",
+      "summary": "8月4日上午11时许，闵行区中春路近联农路一单位发生火灾。附近市民反映事发单位一建筑顶部持续冒出黑烟，嘉闵高架上可见起火建筑顶部有明火、烟雾随风飘散。消防部门接报后调派云梯消防车、高喷消防车等灭火救援车辆迅速赶赴现场，到场后立即扑救，现场明火很快熄灭，无人员伤亡，火灾具体起因由相关部门调查。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（单位建筑顶部起火）",
+      "src": "上海市消防救援部门处置（新民晚报）"
+    },
+    {
+      "date": "2026-08-04",
+      "location": "江西省吉安市一民房（主屋后连接的老屋二层柴房）",
+      "category": "住宅/民房",
+      "summary": "8月4日9时许，江西吉安一民房发生火灾。消防救援人员到场后发现起火点位于主屋后面连着的老屋，老屋2楼是一间柴房、内部堆满大量木柴木板，火势已烧穿木板蔓延至一楼。消防员迅速出水枪对火势进行压制，经过近一个小时紧张处置火势被完全扑灭，未造成人员伤亡。经了解，火灾系一名5岁男童玩打火机引燃柴房内木柴所致。",
+      "casualty": "无人员伤亡",
+      "cause": "儿童玩火（5岁男童玩打火机引燃柴房堆放的木柴木板）",
+      "src": "江西省消防救援总队（江西消防）"
+    },
+    {
+      "date": "2026-08-03",
+      "location": "重庆市城口县葛城街道土城路132号一住宅楼顶",
+      "category": "住宅/民房",
+      "summary": "8月3日20时59分，城口县葛城街道土城路132号一住宅楼顶发生火情。经县公安、应急、消防和属地第一时间全力处置，22时30分许明火被扑灭，未造成人员伤亡。目前起火原因正在进一步调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（住宅楼顶起火，原因待查）",
+      "src": "城口县消防救援局情况通报（城口发布 / 环球网转载）"
+    },
+    {
+      "date": "2026-08-03",
+      "location": "北京市怀柔区庙城镇一村民自建房卧室",
+      "category": "住宅/民房",
+      "summary": "8月3日，北京市怀柔区庙城镇一户村民自建房卧室突发火灾，过火面积约3平方米。消防部门接警后迅速到场扑灭明火，未造成人员伤亡。经调查，起火原因为手机在充电过程中发生电气线路故障，产生的火花引燃周边被褥等可燃物；屋主使用的充电器无3C安全认证且充电期间无人看管。",
+      "casualty": "无人员伤亡",
+      "cause": "手机充电线路电气故障（三无充电器、无人看管）",
+      "src": "怀柔区消防救援支队（陕西消防/怀柔消防案例警示，2026年8月）"
+    },
+    {
+      "date": "2026-08-02",
+      "location": "广西壮族自治区钦州市灵山县十里工业园区园园丰食品有限公司一在建楼",
+      "category": "工厂/车间",
+      "summary": "8月2日12时许，灵山县十里工业园区园园丰食品有限公司一在建楼发生火灾，接报后灵山县消防救援、公安、应急、卫生健康等部门立即赶赴现场处置。现场造成4人被困，已全部救出，其中2人经抢救无效死亡，2人受伤已送医院救治、无生命危险。目前明火已经扑灭，火灾后续处置、原因调查及人员信息核查等相关工作正开展中。",
+      "casualty": "2人死亡，2人受伤",
+      "cause": "调查中（原因调查中）",
+      "src": "灵山县消防救援局警情通报（央视新闻）"
+    },
+    {
+      "date": "2026-08-02",
+      "location": "山东省青岛市黄岛区七星河路363号青岛象屿速传供应链有限公司仓库",
+      "category": "仓储/物流",
+      "summary": "8月2日17时许，黄岛区七星河路363号青岛象屿速传供应链有限公司仓库起火，现场升腾大量黑色浓烟。青岛市、黄岛区消防、公安、应急等多部门第一时间赶赴现场，划定警戒区域、疏散周边人员并全力灭火。经现场排查，本次火灾无人员被困、无人员伤亡，起火具体原因、燃烧物资、财产损失等正在进一步调查核实。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（具体原因、燃烧物资、财产损失进一步核实）",
+      "src": "黄岛发布（黄岛区官方通报）"
+    },
+    {
+      "date": "2026-08-02",
+      "location": "江西省赣州市南康区某工业园一工厂刨花房",
+      "category": "工厂/车间",
+      "summary": "8月2日11时25分，赣州市南康区某工业园内一工厂刨花房突然起火。工厂负责人发现火情后立即高喊提醒厂内员工疏散并拨打119报警，厂内员工迅速响应、利用室内消火栓出水扑救；园区微型消防站同步赶到现场处置。约10分钟后、在消防救援人员赶到前明火已被成功扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（工厂刨花房内木质刨花等可燃物起火）",
+      "src": "江西省消防救援总队（江西消防）"
+    },
+    {
+      "date": "2026-08-02",
+      "location": "江苏省扬州市邗江区沙头镇江苏麒麟环保科技有限公司厂区",
+      "category": "工厂/车间",
+      "summary": "8月2日5时许，扬州市沙头镇江苏麒麟环保科技有限公司工厂内堆放货物的地点起火，现场浓烟滚滚、工厂窗户玻璃破碎。该公司主营打包袋等工业固废处置，事发时厂内有员工。8时许大火被扑灭，厂内全部过火，所幸无人员被困。当日11时许，起火工厂所在的沙头镇镇政府工作人员确认：大火已扑灭，此次火灾未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "疑似设备短路引燃堆放货物（以官方调查结论为准）",
+      "src": "扬州市沙头镇人民政府回应（海报新闻·大众网，东方财富转载）"
+    },
+    {
+      "date": "2026-08-02",
+      "location": "江西省南昌市某小区7楼阳台（租户丢弃烟头引燃杂物）",
+      "category": "住宅/民房",
+      "summary": "8月2日15时许，南昌某小区7楼阳台因租户丢弃未熄灭烟头引燃堆放杂物起火，浓烟封堵通道、租户被困屋内，物业破门施救并使用灭火器扑灭明火，成功将人救出。",
+      "casualty": "无人员伤亡（租户被困后获救）",
+      "cause": "租户丢弃未熄灭烟头引燃阳台杂物",
+      "src": "南昌消防（红谷滩大队）/ 江西消防（2026年8月2日发生）"
+    },
+    {
+      "date": "2026-08-01",
+      "location": "广东省深圳市宝安区西乡街道流塘旧村东区三巷（户外电动自行车充电桩）",
+      "category": "其他",
+      "summary": "8月1日4时08分，消防部门接报西乡街道流塘社区旧村东区三巷4号对面户外电动自行车充电桩突发起火，并迅速引燃周边停放车辆。消防救援人员到场处置，4时17分明火完全扑灭。经初步核查，现场过火面积约4平方米，共计9台电动自行车损毁，未造成人员受伤，紧邻充电桩的临街商铺水管、招牌被高温烤焦。具体起火原因仍待消防部门进一步调查。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（初步指向电动自行车锂电池充电起火，待消防部门认定）",
+      "src": "西乡街道流塘社区工作站情况通报（南方都市报 N 视频报道）"
+    },
+    {
+      "date": "2026-08-01",
+      "location": "湖南省长沙市岳麓区麓谷街道保利麓谷林语小区一高层住宅",
+      "category": "住宅/民房",
+      "summary": "8月1日3时54分，长沙市岳麓区麓谷街道保利麓谷林语小区一高层住宅发生火灾，现场共救出6名伤员并第一时间送医救治。经医疗机构全力救治，截至8月2日16时，4名伤员因伤势过重不幸离世，2名伤者仍在积极救治中。事故原因调查和相关善后工作正在开展中。",
+      "casualty": "4人死亡，2人受伤",
+      "cause": "调查中（原因调查中）",
+      "src": "长沙市岳麓区消防救援局情况通报（央广网、央视新闻、新华社）"
+    },
+    {
+      "date": "2026-08-01",
+      "location": "安徽省亳州市谯城区城父镇一处民房内",
+      "category": "住宅/民房",
+      "summary": "8月1日19时左右，亳州市消防部门接警，谯城区城父镇一处民房发生火灾，初步造成2人死亡。19时21分左右，明火被扑灭。火灾原因还在进一步调查中。",
+      "casualty": "2人死亡",
+      "cause": "调查中（火灾原因进一步调查中）",
+      "src": "新华社（北京日报、点新闻报道）"
+    },
+    {
+      "date": "2026-07-31",
+      "location": "广东省江门市新会区三和大道南与天禄路交叉口附近（一小货车起火）",
+      "category": "其他",
+      "summary": "一辆白色小货车停在车道上，车底冒出火光和浓烟，火势扩大并伴随爆炸声。江门市消防救援支队20时14分接警，立即调派力量处置，20时30分火灾被扑灭，未造成人员伤亡，起火原因待进一步调查。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（起火原因待进一步调查）",
+      "src": "江门市消防救援支队（南方都市报 N 视频报道）"
+    },
+    {
+      "date": "2026-07-31",
+      "location": "上海市浦东新区镇南路一居民家（底楼）",
+      "category": "住宅/民房",
+      "summary": "上午9时30分许，一处底楼居民家天井处出现黑烟并冒出明火，有向上蔓延趋势，楼上居民家受到殃及、部分外墙熏黑。消防到场将火扑灭，火灾造成屋内部分物品烧毁，未造成人员伤亡，起火原因调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "浦东消防处置（网友供图，媒体报道）"
+    },
+    {
+      "date": "2026-07-31",
+      "location": "湖南省邵阳市双清区石桥街道立新社区青山路盛阳·麒麟荟在建工地",
+      "category": "其他",
+      "summary": "7月31日12时31分，邵阳市双清区石桥街道立新社区青山路盛阳·麒麟荟在建工地发生火灾。邵阳市消防救援支队迅速调派3辆水罐消防车、14名指战员赶赴现场处置。过火面积约20平方米，未造成人员伤亡，属一般火灾事故。经调查系工地拆除路边施工围挡时，作业人员采用热切割方式作业，遇阵风引燃路边市政地下涵管并烧损一辆汽车。双清区消防救援局于8月3日作出火灾事故认定并移送公安，8月5日两名作业人员被行政拘留10日。",
+      "casualty": "无人员伤亡",
+      "cause": "违规热切割动火作业遇阵风引燃可燃物（已认定，2人行政拘留）",
+      "src": "邵阳市消防救援支队/双清区消防救援局（人民网湖南频道 2026-08-10 报道）"
+    },
+    {
+      "date": "2026-07-30",
+      "location": "山东省东营市东营区北一路东营富力万达嘉华酒店",
+      "category": "餐饮/酒店",
+      "summary": "酒店户外区域突发火情，高层外墙一处持续冒出浓密黑烟、玻璃幕墙局部受损。消防人员抵达现场时火情已控制，未造成人员伤亡。酒店称系户外区域遗落烟头引发，起火原因可能是杂物起火，具体情况进一步核实。",
+      "casualty": "无人员伤亡",
+      "cause": "疑似户外杂物/遗落烟头起火（进一步核实）",
+      "src": "东营区消防救援大队、华商报大风新闻"
+    },
+    {
+      "date": "2026-07-29",
+      "location": "辽宁省阜新市细河区鲁花西门垃圾场",
+      "category": "其他",
+      "summary": "7月29日16时07分，阜新市细河区鲁花西门垃圾场突发火情，玉龙路消防救援站迅速赶赴现场。当天正值高温橙色预警时段，室外气温超过37℃，起火垃圾堆过火面积约30平方米，浓烟较大。16时26分现场火势被彻底扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（高温天气下垃圾堆积自燃风险，原因待认定）",
+      "src": "辽宁消防全媒体中心（阜新市消防救援支队一线记录）"
+    },
+    {
+      "date": "2026-07-29",
+      "location": "重庆市江津区支坪镇真武场社区洞口居民组乌木沟",
+      "category": "森林/野外",
+      "summary": "7月29日20时44分许，重庆江津区发生一起涉林火情。经市、区两级救援力量连续奋战，截至7月30日凌晨2时许明火已全面扑灭，过火面积11.3亩，全程无人员伤亡、未造成重大财产损失。起火原因仍在进一步调查中。",
+      "casualty": "暂无人员伤亡",
+      "cause": "调查中（过火面积和起火原因正在调查）",
+      "src": "新华社、江津区通报"
+    },
+    {
+      "date": "2026-07-29",
+      "location": "江西省上饶市玉山县冰溪街道新建路一居民楼4楼住户家中",
+      "category": "住宅/民房",
+      "summary": "17时58分，一居民楼4楼住户家中液化气罐泄漏引起爆炸起火，119指挥中心接警后调派消防救援力量赶赴现场，18时55分火被扑灭。爆燃造成1人送医救治无效死亡、1人轻伤。",
+      "casualty": "1人死亡，1人轻伤",
+      "cause": "液化气罐泄漏（具体原因调查中）",
+      "src": "玉山县应急管理局（2026年7月30日通报）、央视新闻"
+    },
+    {
+      "date": "2026-07-29",
+      "location": "广东省东莞市一公司办公室",
+      "category": "其他",
+      "summary": "7月29日清晨，119指挥中心接报称东莞一公司办公室突发火情，一大片工位被烧毁。调取现场监控发现，前一日22时许该办公室一工位排插内部接触不良持续产生电火花，引燃排插上方纸张，火灾初期无明火浓烟且夜间无人值守、未安装自动灭火系统与烟感报警装置，隐匿燃烧近7小时至次日5时许才被发现。约6时消防救援人员到场处置，现场无人员伤亡，办公室物品尽数烧毁。",
+      "casualty": "无人员伤亡",
+      "cause": "工位排插内部接触不良持续产生电火花引燃纸张（电气故障）",
+      "src": "广东省消防救援总队官网 gd.119.gov.cn（2026-08-10 发布，中国消防/东莞消防、环球网转载）"
+    },
+    {
+      "date": "2026-07-28",
+      "location": "上海市虹口区四川北路1906弄90号居民楼",
+      "category": "住宅/民房",
+      "summary": "砖木结构老式居民楼发生火灾，明火从住户家中蹿出、烟雾持续飘散，弄堂狭窄消防车路边铺设水带进入处置。17时11分接警，17时28分明火扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "进一步调查中",
+      "src": "虹口区消防救援支队情况通报（新民晚报、上观新闻转载）"
+    },
+    {
+      "date": "2026-07-28",
+      "location": "上海市杨浦区控江路645弄小区一居民家中",
+      "category": "住宅/民房",
+      "summary": "居民家中发生火灾，窗口冒出烟雾并弥漫至楼道，有居民发现后报警。消防调派力量扑救，火势被扑灭，现场无人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "进一步调查中",
+      "src": "新民晚报报道"
+    },
+    {
+      "date": "2026-07-28",
+      "location": "江苏省淮安市经济技术开发区钵池街道韩泰路与大连路交叉口一仓库",
+      "category": "仓储/物流",
+      "summary": "厂区堆放PVC管道的仓库发生火灾，可燃塑料制品燃烧产生大量浓烟。12时59分接警，消防救援力量赶赴处置，暂无人员伤亡，严防火势蔓延。",
+      "casualty": "暂无人员伤亡",
+      "cause": "调查中（起火原因、财产损失进一步核实）",
+      "src": "淮安市消防救援支队火情通告、淮安市应急管理局（现代快报、海都报转载）"
+    },
+    {
+      "date": "2026-07-28",
+      "location": "上海市静安区延长中路628弄小区",
+      "category": "住宅/民房",
+      "summary": "小区内一居民楼前停放的非机动车起火，火势殃及停在一旁的机动车，现场出现明火和烟雾。居民和保安前期扑救，消防到场后彻底扑灭，未造成人员伤亡，起火原因调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "进一步调查中",
+      "src": "上观新闻"
+    },
+    {
+      "date": "2026-07-28",
+      "location": "广东省揭阳市普宁市下架山镇一楼房（2层自建房，一楼绣花小作坊）",
+      "category": "住宅/民房",
+      "summary": "7月28日8时46分许，广东揭阳普宁下架山镇一楼房突发起火，辖区消防救援力量接警后赶赴处置。消防救援人员到场后经侦查确认，起火建筑为一栋2层自建房，着火位置位于建筑一楼，燃烧物质处于阴燃状态、无明火、浓烟较大，无人员被困。该自建房一楼为绣花小作坊、起火物质为堆放的纱线布碎，二楼存在人员居住（「三合一」场所）。消防救援人员迅速架设水枪阵地对现场进行降温排烟，经紧张扑救现场处置完毕，未造成人员伤亡。起火原因调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（一楼绣花小作坊堆放的纱线、布碎阴燃起火）",
+      "src": "广东省消防救援总队（广东消防 gd.119.gov.cn，2026-08-02 发布）"
+    },
+    {
+      "date": "2026-07-27",
+      "location": "浙江省台州市三门县浦坝港镇农贸市场二层家居城",
+      "category": "商场/市场",
+      "summary": "农贸市场内二层家居城发生火灾，家具堆积导致火焰猛烈燃烧，火势逐步向周边扩散。",
+      "casualty": "无人员伤亡",
+      "cause": "正在调查中",
+      "src": "三门县消防救援大队、浦坝港镇人民政府（经潇湘晨报采访报道）"
+    },
+    {
+      "date": "2026-07-27",
+      "location": "江苏省连云港市东方领秀小区一住宅",
+      "category": "住宅/民房",
+      "summary": "早晨一住宅4楼（下有一层防空层）起火，浓烟从窗口冒出。一大人带3岁小孩在4楼窗外避险时不慎先后坠落，女童经抢救无效离世，母亲送医救治（伤情平稳）。消防回应称现场不具备铺设救生气垫和使用云梯车条件，坠落中撞到架空层挑檐未能接住。原因调查中。",
+      "casualty": "1人死亡，1人受伤（母女避险坠楼）",
+      "cause": "调查中",
+      "src": "潇湘晨报报道（新海街道办确认）"
+    },
+    {
+      "date": "2026-07-26",
+      "location": "四川省眉山市洪雅县柳江镇玉屏山",
+      "category": "森林/野外",
+      "summary": "7月26日14时30分许，玉屏山附近突发森林火灾，火场气温高达40℃、山林地形复杂，扑救难度大。四川消防救援机动总队成都、甘孜、凉山支队等300余名消防员连夜奋战，当日21时明火全部扑灭，7月27日救援队伍平安归建，无人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（起火原因未公布）",
+      "src": "央视新闻、央广网"
+    },
+    {
+      "date": "2026-07-25",
+      "location": "北京市朝阳区左家庄街道一家政服务单位办公室",
+      "category": "其他",
+      "summary": "7月25日，朝阳区左家庄街道一家政单位办公用平板电脑充电线发生电气线路故障，设备长时间通电产生高温引燃周边可燃物，过火面积约1平方米，未造成人员伤亡。朝阳区消防救援支队已责令涉事单位整改，并提醒办公及居家场所勿长时间无人值守充电。",
+      "casualty": "无人员伤亡",
+      "cause": "平板电脑充电线电气线路故障，长时间通电高温引燃可燃物",
+      "src": "朝阳区消防救援支队（北京日报客户端报道）"
+    },
+    {
+      "date": "2026-07-22",
+      "location": "四川省成都市龙泉驿区大面街道东洪社区东洪路418号一仓库",
+      "category": "仓储/物流",
+      "summary": "单层彩钢结构仓库发生火灾，消防救援力量调派8个队站共94人19车处置，14时47分首战力量抵达，火势迅速控制。经扑救明火于15时50分扑灭，过火面积约300平方米，无人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中（起火原因正在调查）",
+      "src": "成都市龙泉驿区应急管理局情况通报、成都市消防救援支队（中新网、央视新闻）"
+    },
+    {
+      "date": "2026-07-21",
+      "location": "北京市昌平区史各庄街道一居民家中（厨房）",
+      "category": "住宅/民房",
+      "summary": "7月21日9时34分，昌平区消防救援支队119指挥中心接到报警，史各庄街道一居民家中发生火灾。经核查，起火部位为厨房灶台处，起火物为厨房油锅、抽油烟机，起火原因系户主做饭时离开灶台导致油锅起火。小区微型消防站先期处置，9时36分消防救援站抵达时明火已扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "生活用火不慎（户主做饭离开灶台致油锅起火）",
+      "src": "昌平区消防救援支队（新京报报道）"
+    },
+    {
+      "date": "2026-07-20",
+      "location": "四川省乐山市市中区苏稽镇桂花路（苏稽古镇）",
+      "category": "商场/市场",
+      "summary": "苏稽古镇一处火情波及多家商铺，乐山市市中区消防救援大队出警处置。6时22分发生火情，6时50分左右明火扑灭，未造成人员伤亡，起火原因正在调查。景区大部分正常开放。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "苏稽镇人民政府情况通报、乐山市市中区消防救援大队（潇湘晨报采访）"
+    },
+    {
+      "date": "2026-07-18",
+      "location": "福建省厦门市集美大学一实验楼（储能技术研究实验室）",
+      "category": "学校/教育机构",
+      "summary": "实验楼4楼储能技术研究实验室发生火灾，燃烧物为实验设备，消防使用泡沫水快速扑灭，确认未存有遇水反应化学品。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "厦门消防处置、海峡导报报道"
+    },
+    {
+      "date": "2026-07-15",
+      "location": "山东省淄博市临淄区一大型婚宴酒店",
+      "category": "餐饮/酒店",
+      "summary": "大型婚宴酒店失火，火势迅速蔓延，现场升起巨大烟柱。当地消防、公安、应急等单位迅速到场救援，至15日晚间明火被扑灭，事故未造成人员伤亡，起火原因进一步调查中。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "陕西消防（案例警示）"
+    },
+    {
+      "date": "2026-07-12",
+      "location": "广东省广州市海珠区南洲街道汇源新街一商务酒店",
+      "category": "餐饮/酒店",
+      "summary": "商务酒店室外悬挂式广告牌突发火情，消防救援力量迅速处置，10时03分明火扑灭，火势未蔓延至建筑内部。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "广州消防警情通报（央广网、南方+）"
+    },
+    {
+      "date": "2026-07-12",
+      "location": "上海市闵行区虹梅路一门面店",
+      "category": "其他",
+      "summary": "闵行区虹梅路一门面店发生火灾，市119消防指挥中心接警后调派力量赶赴现场处置，火势已扑灭，未造成人员伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "调查中",
+      "src": "闵行区消防救援支队（上海闵行消防）"
+    },
+    {
+      "date": "2026-07-12",
+      "location": "江西省南昌市一小区居民楼一楼楼道口",
+      "category": "住宅/民房",
+      "summary": "7月12日0时许，南昌市一小区居民楼楼道口突发火情，火焰顺电线蔓延至三楼，楼道浓烟密布，多名居民被困楼上无法逃离。消防救援人员到场后兵分两路，一边出水压制火势阻断蔓延，一边逐层搜救，16名被困群众全部安全转移，明火扑灭；多辆自行车、电动自行车被烧毁。",
+      "casualty": "无人员伤亡（16人被困全部安全转移）",
+      "cause": "停放在一楼楼道内、正在「飞线充电」的电动自行车起火",
+      "src": "南昌市消防救援支队（江西消防/中国消防、澎湃新闻转载）"
+    },
+    {
+      "date": "2026-07-11",
+      "location": "黑龙江省绥化市望奎县同源小区一居民家中",
+      "category": "住宅/民房",
+      "summary": "7月11日21时40分许，一居民家中因液化气罐泄漏发生闪爆，造成一人轻伤，住宅门窗部分损坏，周围邻居家阳台玻璃被震碎。望奎县第一时间组织公安、消防、住建、市场监管等部门现场处置，危险已排除，受伤人员妥善救治，受损门窗有序修缮，原因进一步调查中。",
+      "casualty": "1人轻伤",
+      "cause": "液化气罐泄漏（调查中）",
+      "src": "望奎县住房和城乡建设局情况通报（新京报、广东消防转载）"
+    },
+    {
+      "date": "2026-07-09",
+      "location": "福建省泉州市晋江市陈埭镇江头村辉腾鞋业有限公司厂房",
+      "category": "工厂/车间",
+      "summary": "鞋业厂房五层生产车间发生火灾，火势迅猛蔓延，现场约239人作业。救援疏散213人，事故造成28人遇难（26名失联人员确认遇难，2名送医伤员不治）。",
+      "casualty": "28人死亡",
+      "cause": "调查中（逃生通道设栅栏、喷淋不到位等隐患被指出）",
+      "src": "福建省政府/泉州市新闻发布会（新华社、央视、福建日报）"
+    },
+    {
+      "date": "2026-07-06",
+      "location": "山东省威海市经济技术开发区一厂房",
+      "category": "工厂/车间",
+      "summary": "厂房突发火灾，明火于当日18时40分被扑灭，事故调查及善后处置工作有序进行。",
+      "casualty": "4人死亡",
+      "cause": "调查中",
+      "src": "长沙消防火灾案例通报（转述）"
+    },
+    {
+      "date": "2026-07-06",
+      "location": "北京市朝阳区东三环中路某底商酒馆",
+      "category": "餐饮/酒店",
+      "summary": "餐饮店铺后厨突发火灾，过火面积约1平方米，员工使用灭火器初期处置扑灭，无人员被困及伤亡。",
+      "casualty": "无人员伤亡",
+      "cause": "后厨操作人员用火不慎",
+      "src": "朝阳消防调查认定（新京报）"
+    },
+    {
+      "date": "2026-07-06",
+      "location": "河南省郑州市惠济区刘寨街道北三环和昌珑悦小区A座628房间",
+      "category": "住宅/民房",
+      "summary": "小区A座628房间发生火灾，过火面积约15平方米，8时06分明火扑灭。经全面搜救，5人死亡、1人受伤（生命体征正常）。",
+      "casualty": "5人死亡，1人受伤",
+      "cause": "正在调查中",
+      "src": "郑州市消防救援局官方通报（央广网、中新网转载）"
+    },
+    {
+      "date": "2026-06-29",
+      "location": "辽宁省葫芦岛市南票区九龙街道兴北社区一居民楼3单元",
+      "category": "住宅/民房",
+      "summary": "居民楼3单元发生疑似液化气泄漏闪爆，3名失联人员后全部找到均无生命体征，8人轻微伤送医。",
+      "casualty": "3人死亡，8人轻微伤",
+      "cause": "疑似液化气泄漏（调查中）",
+      "src": "葫芦岛市消防救援局警情通报（经媒体报道）"
+    }
+  ]
+}</script>
+
+<!-- nav -->
+<nav class="nav">
+  <div class="brand">
+    <span class="logo">🔥</span>
+    <span class="bn">火眼</span>
+  </div>
+  <div class="right">
+    <span class="date-pill" id="navDate">DATE</span>
+  </div>
+</nav>
+
+<!-- hero（双栏） -->
+<section class="wrap hero">
+  <div class="hero-left">
+    <span class="tag"><span class="dot"></span>实时 · 官方来源 · 每日滚动更新</span>
+    <h1>全国火灾信息<br><span class="accent">每日播报</span></h1>
+    <p class="lead">由荣达消防整理，AI 联网聚合各地消防救援机构官方通报与权威媒体转载，按真实发生日期归档、按板块分类的火情信息流，每日多时段滚动更新，并附重点地区态势与应急防范建议。</p>
+    <div class="hero-cta">
+      <button class="btn primary" onclick="document.getElementById('trend').scrollIntoView()">查看月度趋势</button>
+      <button class="btn" onclick="document.getElementById('feed').scrollIntoView()">查看火情速递</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <!-- 单卡片：重大火情 + 最新火情（各自带来源核实） -->
+    <div class="case hero-case" id="heroCase">
+      <!-- 重大火情（近30天伤亡最重，无遇难则隐藏整块） -->
+      <div class="case-block" id="heroMajor" style="display:none">
+        <div class="case-head">
+          <span class="case-badge">🔥 重大火情</span>
+          <a id="heroMajorLink" href="#" target="_blank" rel="noopener" class="case-vlink">核实 ↗</a>
+          <span class="case-time" id="heroMajorTime">—</span>
+        </div>
+        <div class="case-body">
+          <div class="case-loc" id="heroMajorLoc">—</div>
+          <div class="case-cas" id="heroMajorCas">—</div>
+        </div>
+      </div>
+      <div class="case-divider" id="heroDivider" style="display:none"></div>
+      <!-- 最新火情 -->
+      <div class="case-block">
+        <div class="case-head">
+          <span class="case-badge">🔥 最新火情</span>
+          <a id="heroCaseLink" href="#" target="_blank" rel="noopener" class="case-vlink">核实 ↗</a>
+          <span class="case-time" id="heroCaseTime">—</span>
+        </div>
+        <div class="case-body">
+          <div class="case-loc" id="heroCaseLoc">—</div>
+          <div class="case-cas" id="heroCaseCas">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- stats -->
+<section class="wrap" id="brief">
+  <div class="sec-title"><h2>今日要览</h2><span class="en">// DAILY OVERVIEW</span></div>
+  <p class="sec-note">统计窗口：近 30 天滚动（以事件真实发生日期计，非检索当日）。随火情入库自动变化。</p>
+  <div class="stats" id="statsView"></div>
+</section>
+
+<!-- 火情速递 feed（aihot 风：日期分组 + 排名 + 信源 badge） -->
+<section class="wrap" id="feed">
+  <div class="sec-title"><h2>火情速递</h2><span class="en">// LIVE FEED</span></div>
+  <p class="sec-note">AI 联网检索 · 滚动更新 · 官方/权威媒体来源，按「日期+地点」去重，按发生日期倒序。点击分类可筛选。</p>
+  <div class="archive-tools">
+    <div class="dist" id="distView"></div>
+  </div>
+  <div class="cat-bar-wrap">
+    <div class="cat-bar-cap">板块占比 // CATEGORY SHARE</div>
+    <div class="cat-bar" id="catBar"></div>
+  </div>
+  <div id="feedView"></div>
+  <button class="load-more" id="loadMore" style="display:none"></button>
+</section>
+
+<!-- regions -->
+<section class="wrap">
+  <div class="sec-title"><h2>地区通报</h2><span class="en">// REGIONAL REPORT</span></div>
+  <div class="regions">
+    <div class="card">
+      <h3><span class="ic">📍</span>江西省 <span class="badge ok">官方通报</span></h3>
+      <p style="color:var(--muted);font-size:14px" id="jxText">今日无通报</p>
+    </div>
+    <div class="card">
+      <h3><span class="ic">🏙️</span>北上广深 <span class="badge ok">官方通报</span></h3>
+      <div class="city-list" id="cityList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 月度趋势图 -->
+<section class="wrap" id="trend">
+  <div class="sec-title"><h2>月度趋势</h2><span class="en">// MONTHLY TREND</span></div>
+  <p class="sec-note">按事件真实发生月份统计火情起数与伤亡人数，直观呈现时间分布规律。</p>
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(31,35,40,.05)">
+    <canvas id="trendChart" style="width:100%;height:280px;display:block"></canvas>
+    <div id="trendLegend" style="display:flex;gap:20px;justify-content:center;margin-top:14px;font-size:12.5px;color:var(--muted)"></div>
+  </div>
+</section>
+
+<!-- tips -->
+<section class="wrap">
+  <div class="sec-title"><h2>应急防范建议</h2><span class="en">// SAFETY ADVICE</span></div>
+  <div class="tips" id="tipsView"></div>
+</section>
+
+<!-- 业务直连 -->
+<section class="wrap contact-section">
+  <div class="sec-title"><h2>业务直连</h2><span class="en">// CONTACT</span></div>
+  <div class="contact-grid">
+    <a class="contact-card" href="tel:17770014131">
+      <div class="ic">📞</div>
+      <div class="meta">
+        <span class="lab">业务直连</span>
+        <span class="val">17770014131</span>
+      </div>
+    </a>
+    <a class="contact-card" href="https://www.jxrdxf.top" target="_blank" rel="noopener">
+      <div class="ic">🌐</div>
+      <div class="meta">
+        <span class="lab">官网</span>
+        <span class="val">www.jxrdxf.top</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- 分享海报（内嵌页面底部，直接展示 poster-cover.png 原图） -->
+<section class="wrap poster-section">
+  <div class="sec-title"><h2>每日分享海报</h2><span class="en">// SHARE POSTER</span></div>
+  <p class="sec-note">下方为今日火情海报，长按图片或点「保存海报」即可存入相册，直接发朋友圈 / 小红书 / 公众号。扫码直达实时页面。海报与页面数据同源，每日自动更新。</p>
+  <div class="poster-wrap">
+    <div class="poster-frame">
+      <img src="poster-cover.png" alt="火眼每日火灾播报海报">
+    </div>
+    <div class="poster-actions">
+      <a class="btn primary" href="poster-cover.png" download="火眼每日火灾播报.png">💾 保存海报</a>
+      <button class="btn ghost" onclick="copyImage()">📋 复制图片</button>
+    </div>
+    <div class="poster-tip">遇到无法保存时，截图本卡片同样可发圈，效果一致。</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>荣达消防 · 火眼每日火灾播报 · 数据以官方通报为准</div>
+    <div class="src" id="footSrc"></div>
+  </div>
+</footer>
+
+
+<script>
+const BRIEF = JSON.parse(document.getElementById('brief-data').textContent);
+const history = BRIEF.history || [];
+
+// 分类配色（板块）
+const CAT = {
+  '工厂/车间':    {c:'#b0712a', b:'rgba(176,113,42,.12)'},
+  '商场/市场':    {c:'#B71C1C', b:'rgba(183,28,28,.10)'},
+  '学校/教育机构':{c:'#0969da', b:'rgba(9,105,218,.10)'},
+  '住宅/民房':    {c:'#8250df', b:'rgba(130,80,223,.10)'},
+  '餐饮/酒店':    {c:'#bf3989', b:'rgba(191,57,137,.10)'},
+  '仓储/物流':    {c:'#1a7f37', b:'rgba(26,127,55,.10)'},
+  '交通枢纽':     {c:'#9a6700', b:'rgba(154,103,0,.12)'},
+  '森林/野外':    {c:'#2da44e', b:'rgba(45,164,78,.12)'},
+  '其他':         {c:'#656d76', b:'rgba(101,109,118,.12)'}
+};
+function catStyle(cat){const m=CAT[cat]||CAT['其他'];return `color:${m.c};background:${m.b};border:1px solid ${m.c}33`;}
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+// 来源核实链接（指向聚合检索，便于点开验证官方通报）
+function verifyUrl(h){
+  const q=((h.location||'')+' '+(h.casualty||'')+' 火灾 通报 消防救援').trim();
+  return 'https://www.bing.com/search?q='+encodeURIComponent(q);
+}
+// 把完整地点拆成「省·市」区域标签 + 详情
+function locParts(loc){
+  loc = loc||'';
+  let region='', detail=loc;
+  const prov = loc.match(/^([^省]*省|[^自治区]*自治区|[^市]*市|[^直辖市]*直辖市|[^特别行政区]*特别行政区)/);
+  if(prov){ region=prov[1]; detail=loc.slice(prov[1].length);
+    const city = detail.match(/^([^市]*市|[^区]*区|[^县]*县|[^盟]*盟|[^州]*州)/);
+    if(city){ region+=city[1]; detail=detail.slice(city[1].length); }
+  }
+  return {region, detail};
+}
+// 死亡人数解析（兼容「3人经送医抢救无效死亡」等中间夹字写法）
+function parseDeaths(h){
+  const c=h.casualty||'';
+  const re=/(\d+)\s*人?[^，。,]*?(?:死亡|牺牲|殉职)/g;
+  let m,total=0;
+  while((m=re.exec(c))){ total+=parseInt(m[1]); }
+  return total;
+}
+// 伤亡解析（死+伤总数；死亡数统一走 parseDeaths 口径）
+function parseCas(h){
+  const c=h.casualty||'';
+  if(/无伤亡|无人员伤亡/.test(c)) return 0;
+  const d=parseDeaths(h);
+  let i=parseInt((c.match(/(\d+)\s*人?\s*(?:受|轻|微)*\s*伤/)||[])[1]||'0');
+  const s=c.match(/(\d+)\s*人\s*(?:送医|救治)/);
+  if(s) i+=parseInt(s[1]);
+  return d+i;
+}
+// 日期格式化（含星期）
+function fmtDate(iso){
+  const d=new Date(iso); if(isNaN(d)) return iso;
+  const w=['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const dd=String(d.getDate()).padStart(2,'0');
+  return `${d.getFullYear()}-${mm}-${dd} ${w}`;
+}
+
+// nav
+document.getElementById('navDate').textContent = BRIEF.date;
+
+// ---------- 今日要览：动态计算（近30天滚动窗口） ----------
+const todayISO = BRIEF.date.replace(/年|月/g,'-').replace('日','');
+const WIN = 30;
+function inWindow(d){ if(!d) return false; const diff=(new Date(todayISO)-new Date(d))/86400000; return diff>=0 && diff<=WIN; }
+const recent = history.filter(h=>inWindow(h.date));
+const totalCas = recent.reduce((a,h)=>a+parseCas(h),0);
+const s = BRIEF.stats || {};
+const stats = [
+  {k:recent.length, l:`近30天收录火情 (起)`, c:'red'},
+  {k:s.noReportRegions!=null?s.noReportRegions:5, l:'重点地区监测 (个)', c:'green'},
+  {k:totalCas, l:'近30天人员伤亡 (人)', c:'blue'},
+  {k:BRIEF.date.slice(5), l:'更新日期', c:'yellow'}
+];
+document.getElementById('statsView').innerHTML = stats.map(x=>
+  `<div class="stat ${x.c}"><div class="k">${x.k}</div><div class="l">${x.l}</div></div>`
+).join('');
+
+// ---------- 重大火情 + 最新火情（同处 Hero 右栏一张卡片） ----------
+(function(){
+  // 重大火情：近30天有遇难才显示整块 + 分隔线；排序死亡人数优先，死亡数相同再比伤亡总数
+  const withDeaths = recent.filter(h => /死/.test(h.casualty || ''));
+  const major = withDeaths.length
+    ? withDeaths.slice().sort((a, b) =>
+        (parseDeaths(b) - parseDeaths(a)) || (parseCas(b) - parseCas(a)))[0]
+    : null;
+  const majorEl = document.getElementById('heroMajor');
+  const divEl = document.getElementById('heroDivider');
+  if (major) {
+    majorEl.style.display = '';
+    divEl.style.display = '';
+    document.getElementById('heroMajorTime').textContent = major.date || '—';
+    document.getElementById('heroMajorLoc').textContent = major.location || '—';
+    const casEl = document.getElementById('heroMajorCas');
+    casEl.textContent = major.casualty || '无人员伤亡';
+    casEl.className = 'case-cas' + (/死/.test(major.casualty || '') ? ' has-cas' : ' no-cas');
+    document.getElementById('heroMajorLink').href = verifyUrl(major);
+  } else {
+    majorEl.style.display = 'none';
+    divEl.style.display = 'none';
+  }
+  // 最新火情（BRIEF.case，date 倒序第一条）
+  const c = BRIEF.case;
+  document.getElementById('heroCaseTime').textContent = c.date || c.time || '—';
+  document.getElementById('heroCaseLoc').textContent = c.location || '—';
+  const lcEl = document.getElementById('heroCaseCas');
+  lcEl.textContent = c.casualty || '无人员伤亡';
+  lcEl.className = 'case-cas' + (/死/.test(c.casualty || '') ? ' has-cas' : ' no-cas');
+  document.getElementById('heroCaseLink').href = verifyUrl(c);
+})();
+
+// regions
+document.getElementById('jxText').textContent = BRIEF.jiangxi;
+document.getElementById('cityList').innerHTML = BRIEF.megacities.map(c=>
+  `<span class="city">${c.name} · ${c.status}</span>`
+).join('');
+
+// ---------- 火情速递 feed ----------
+const counts = {};
+history.forEach(h=>{const c=h.category||'其他';counts[c]=(counts[c]||0)+1;});
+// 分类统计 chip（点击即筛选；保留"共 N 起 + 分类+数量"样式，去掉下排重复按钮）
+let activeFilter = '全部';
+const distViewEl = document.getElementById('distView');
+function renderDist(){
+  const sorted = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  const chips = sorted.map(c=>
+    `<span class="chip${c===activeFilter?' active':''}" data-cat="${esc(c)}" style="${catStyle(c)}">${esc(c)} ${counts[c]}</span>`
+  ).join('');
+  distViewEl.innerHTML =
+    `<span class="dl">共 ${history.length} 起 ·</span>` +
+    `<span class="chip${'全部'===activeFilter?' active':''}" data-cat="全部">全部</span>` + chips;
+  distViewEl.querySelectorAll('.chip').forEach(ch=>{
+    ch.onclick=()=>{ activeFilter=ch.dataset.cat; renderDist(); showAll=false; renderFeed(); };
+  });
+}
+renderDist();
+
+// category proportion bar（板块占比，保留）
+const totalH = history.length;
+const catBar = document.getElementById('catBar');
+if(totalH>0){
+  catBar.innerHTML = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(c=>{
+    const m = CAT[c]||CAT['其他'];
+    return `<span style="flex:${counts[c]};background:${m.c};min-width:6px" title="${esc(c)} ${counts[c]} 起"></span>`;
+  }).join('');
+} else { catBar.innerHTML=''; }
+document.getElementById('loadMore').onclick=()=>{showAll=!showAll;renderFeed();window.scrollTo({top:document.getElementById('feed').offsetTop+260,behavior:'smooth'});};
+
+let showAll=false;
+function renderFeed(){
+  const all=(activeFilter==='全部'?history:history.filter(h=>(h.category||'其他')===activeFilter))
+    .slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const rows = showAll ? all : all.slice(0,6);
+  const fv=document.getElementById('feedView');
+  if(!all.length){fv.innerHTML='<div class="empty">该分类下暂无火情记录</div>';document.getElementById('loadMore').style.display='none';return;}
+  let html=''; let rank=0; let curDate=null;
+  rows.forEach(h=>{
+    rank++;
+    if(h.date!==curDate){ curDate=h.date; html+=`<div class="feed-date">📅 ${fmtDate(h.date)}</div>`; }
+    const cat=h.category||'其他'; const m=CAT[cat]||CAT['其他']; const lp=locParts(h.location);
+    const cas=parseCas(h);
+    const sev = cas>0
+      ? `<span class="sev ${/死/.test(h.casualty||'')?'sev-dead':'sev-inj'}">${esc(h.casualty)}</span>`
+      : `<span class="sev sev-none">无伤亡</span>`;
+    const locHtml = lp.region
+      ? `<span class="loc-region">${esc(lp.region)}</span><span class="loc-detail" title="${esc(h.location)}">${esc(lp.detail)}</span>`
+      : `<span class="loc-detail" title="${esc(h.location)}">${esc(h.location)}</span>`;
+    html+=`<div class="feed-card" style="border-left-color:${m.c}">
+      <div class="fc-meta">
+        <span class="cat-badge" style="${catStyle(cat)}">${esc(cat)}</span>
+        ${sev}
+      </div>
+      <div class="fc-title">${locHtml}</div>
+      <div class="fc-sum">${esc(h.summary)||'—'}</div>
+      <div class="fc-footer">
+        🏛 ${esc(h.src)||'—'}
+        ${h.cause?`· 原因：${esc(h.cause)}`:''}
+        · <a href="${verifyUrl(h)}" target="_blank" rel="noopener">核实 ↗</a>
+      </div>
+    </div>`;
+  });
+  fv.innerHTML=html;
+  const lm=document.getElementById('loadMore');
+  if(all.length>6){ lm.style.display='block'; lm.textContent = showAll?`收起（共 ${all.length} 起）`:`查看全部 ${all.length} 起火情`; }
+  else lm.style.display='none';
+}
+renderFeed();
+
+// ---------- 月度趋势图（Canvas 柱状图 + 折线图双轴） ----------
+(function(){
+  const canvas = document.getElementById('trendChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  // 按月聚合
+  const monthData = {};
+  history.forEach(h=>{
+    const m = (h.date||'').slice(0,7); // YYYY-MM
+    if(!m) return;
+    if(!monthData[m]) monthData[m]={incidents:0, deaths:0, injuries:0};
+    monthData[m].incidents++;
+    const c = h.casualty||'';
+    const d = parseDeaths(h);
+    let i = parseInt((c.match(/(\d+)\s*人?\s*(?:受|轻|微)*\s*伤/)||[])[1]||'0');
+    const sm = c.match(/(\d+)\s*人\s*(?:送医|救治)/);
+    if(sm) i += parseInt(sm[1]);
+    monthData[m].deaths += d;
+    monthData[m].injuries += i;
+  });
+  const months = Object.keys(monthData).sort();
+  if(!months.length) { document.getElementById('trendLegend').innerHTML='<span style="color:var(--faint)">暂无足够数据绘制趋势图</span>'; return; }
+
+  // HiDPI
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    draw(rect.width, rect.height);
+  }
+
+  function draw(W, H){
+    const pad = {top:20, right:24, bottom:44, left:42};
+    const cW = W - pad.left - pad.right;
+    const cH = H - pad.top - pad.bottom;
+
+    ctx.clearRect(0,0,W,H);
+
+    // max values
+    const maxInc = Math.max(...months.map(m=>monthData[m].incidents), 1);
+    const maxCas = Math.max(...months.map(m=>monthData[m].deaths+monthData[m].injuries), 1);
+
+    // grid
+    ctx.strokeStyle = 'rgba(0,0,0,.06)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<=4;i++){
+      const y = pad.top + (cH/4)*i;
+      ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
+    }
+
+    // Y轴标签（左侧：起数）
+    ctx.fillStyle = '#8b939c';ctx.font='11px var(--mono)';ctx.textAlign='right';
+    for(let i=0;i<=4;i++){
+      const v = Math.round(maxInc*(4-i)/4);
+      const y = pad.top + (cH/4)*i;
+      ctx.fillText(v, pad.left-8, y+4);
+    }
+    // Y轴标签（右侧：伤亡）
+    ctx.textAlign='left';
+    for(let i=0;i<=4;i++){
+      const v = Math.round(maxCas*(4-i)/4);
+      const y = pad.top + (cH/4)*i;
+      ctx.fillText(v, pad.left+cW+8, y+4);
+    }
+
+    const barW = Math.min(48, (cW/months.length)*0.55);
+    const gap = (cW - barW*months.length)/(months.length+1);
+
+    months.forEach((m, idx)=>{
+      const x = pad.left + gap + idx*(barW+gap);
+      const d = monthData[m];
+      // bar
+      const barH = (d.incidents/maxInc)*cH;
+      const grad = ctx.createLinearGradient(x, pad.top+cH-barH, x, pad.top+cH);
+      grad.addColorStop(0, '#B71C1C');grad.addColorStop(1, 'rgba(183,28,28,.35)');
+      ctx.fillStyle=grad;
+      roundRect(ctx, x, pad.top+cH-barH, barW, barH, 4);
+      ctx.fill();
+
+      // death/injury dot (line)
+      const casTotal = d.deaths+d.injuries;
+      if(casTotal>0){
+        const cy = pad.top + cH - (casTotal/maxCas)*cH;
+        ctx.beginPath();ctx.arc(x+barW/2, cy, 5, 0, Math.PI*2);
+        ctx.fillStyle = '#bf3989';ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+      }
+
+      // X轴 label
+      ctx.save();ctx.translate(x+barW/2, pad.top+cH+14);
+      ctx.rotate(-Math.PI/6);ctx.fillStyle='#8b939c';ctx.font='11px var(--mono)';ctx.textAlign='right';
+      ctx.fillText(m.slice(5)+'月',0,0);ctx.restore();
+    });
+
+    // line connecting dots
+    ctx.beginPath();ctx.strokeStyle='#bf3989';ctx.lineWidth=2.5;
+    let started=false;
+    months.forEach((m,idx)=>{
+      const x = pad.left + gap + idx*(barW+gap) + barW/2;
+      const casTotal = monthData[m].deaths+monthData[m].injuries;
+      if(casTotal>0){
+        const cy = pad.top + cH - (casTotal/maxCas)*cH;
+        if(!started){ctx.moveTo(x,cy);started=true;} else ctx.lineTo(x,cy);
+      }
+    });
+    ctx.stroke();
+
+    // axis titles
+    ctx.save();ctx.fillStyle='#5b636c';ctx.font='11px var(--sans)';
+    ctx.textAlign='center';ctx.fillText('起数', pad.left-18, pad.top-8);
+    ctx.fillText('伤亡(人)', pad.left+cW+18, pad.top-8);
+    ctx.restore();
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.lineTo(x,y+h-r);ctx.arcTo(x,y+h,x,y,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  // legend
+  document.getElementById('trendLegend').innerHTML =
+    `<span><span style="display:inline-block;width:12px;height:12px;background:linear-gradient(135deg,#B71C1C,rgba(183,28,28,.35));border-radius:3px;vertical-align:-2px;margin-right:5px"></span>火情起数</span>` +
+    `<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#bf3989;border:2px solid #fff;vertical-align:-2px;margin-right:5px"></span>伤亡人数</span>`;
+})();
+
+// tips
+document.getElementById('tipsView').innerHTML = BRIEF.tips.map((t,i)=>
+  `<div class="tip"><div class="n">${i+1}</div><div class="tx">${t}</div></div>`
+).join('');
+
+// notes
+document.getElementById('notesView').innerHTML = BRIEF.notes.map((n,i)=>
+  `<li><span class="b">${String(i+1).padStart(2,'0')}</span><span>${n}</span></li>`
+).join('');
+
+// footer
+document.getElementById('footSrc').textContent = '数据来源：' + BRIEF.source + ' · 收集时段：' + BRIEF.range;
+
+// ---------- 分享海报（底部内嵌，复制图片到剪贴板） ----------
+async function copyImage(){
+  try {
+    const img = document.querySelector('.poster-frame img');
+    if(!img){ showToast('海报图片未加载'); return; }
+    const resp = await fetch(img.src);
+    const blob = await resp.blob();
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob })
+    ]);
+    showToast('已复制海报图片，直接粘贴发送');
+  } catch(e){
+    // 降级：提示用户手动长按保存
+    showToast('复制失败，请长按图片保存');
+  }
+}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+
+// ---------- 小程序 web-view 内「核实」外链处理 ----------
+// 微信 web-view 不允许跳转非业务域名外链，故在小程序内点击"核实"改为复制链接到剪贴板并提示去浏览器打开；
+// 普通浏览器/H5 环境不受影响，仍按 target=_blank 正常打开。
+function inMiniProgram(){
+  return (window.__wxjs_environment === 'miniprogram') ||
+         (typeof wx !== 'undefined' && wx && wx.miniProgram);
+}
+function fallbackCopy(url){
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url); return; }
+    var ta=document.createElement('textarea');
+    ta.value=url; ta.style.position='fixed'; ta.style.top='-9999px'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+  } catch(e){}
+}
+function copyText(url){
+  try {
+    if(window.wx && wx.setClipboardData){
+      wx.setClipboardData({ data:url, fail:function(){ fallbackCopy(url); } });
+      return;
+    }
+  } catch(e){}
+  fallbackCopy(url);
+}
+function notifyVerify(){
+  if(window.wx && wx.showToast){
+    wx.showToast({ title:'链接已复制，请在浏览器打开', icon:'none', duration:2500 });
+  } else {
+    showToast('链接已复制，请在浏览器打开');
+  }
+}
+document.addEventListener('click', function(e){
+  var a = (e.target && e.target.closest) ? e.target.closest('a') : null;
+  if(!a) return;
+  var href = a.getAttribute('href') || '';
+  var isVerify = a.classList.contains('case-vlink') ||
+    ((a.closest && a.closest('.fc-footer')) && /^https?:/i.test(href));
+  if(!isVerify) return;
+  if(inMiniProgram() && /^https?:/i.test(href)){
+    e.preventDefault();
+    copyText(href);
+    notifyVerify();
+  }
+}, true);
+
+</script>
+</body>
+</html>
