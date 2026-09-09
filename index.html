@@ -159,6 +159,22 @@
   .city-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
   .city{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:4px 10px;background:#fff}
 
+  /* 地区通报 — 事件流美化 */
+  .reg-summary{font-family:var(--mono);font-size:12px;color:var(--muted);margin:-2px 0 12px}
+  .ev-list{display:flex;flex-direction:column;gap:8px;max-height:330px;overflow:auto;padding-right:4px;margin-top:2px}
+  .ev{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.5}
+  .ev .date{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);background:rgba(183,28,28,.08);border-radius:6px;padding:2px 7px;margin-top:1px;white-space:nowrap}
+  .ev .body{flex:1;color:var(--text);min-width:0}
+  .ev .cas{flex:0 0 auto;font-family:var(--mono);font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;align-self:center}
+  .ev .cas.has{color:#fff;background:var(--red)}
+  .ev .cas.none{color:var(--green);background:var(--green-bg);border:1px solid rgba(26,127,55,.3)}
+  .ev.dead .body{color:#a31515;font-weight:600}
+  .city-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .city-card{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:#fff}
+  .city-card h4{font-size:13.5px;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--text)}
+  .city-card h4 .cnt{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .city-card .ev-list{max-height:248px;gap:7px}
+
   /* case detail — 最新火情（醒目卡片，已移入 Hero 右栏） */
   .case{
     background:var(--panel);
@@ -404,6 +420,7 @@
     h1{font-size:34px}
     .stats{grid-template-columns:repeat(2,1fr)}
     .regions,.tips{grid-template-columns:1fr}
+    .city-grid{grid-template-columns:1fr}
     .nav{flex-wrap:wrap;align-items:flex-start;gap:10px}
     .brand{flex-direction:row;align-items:center;gap:7px}
     .brand-line1{flex-direction:column;align-items:flex-start;gap:1px}
@@ -1925,11 +1942,11 @@
   <div class="regions" data-page-node-id="bRypTPd7dTRTV94ubJYiCP">
     <div class="card" data-page-node-id="CfClBtPgttmkDkQjk5iZR9">
       <h3 data-page-node-id="Zt11a1lAPMdoXxWQRpnAoD"><span class="ic" data-page-node-id="kthxij9dtVrHeV8GFxT9rW">📍</span>江西省 <span class="badge ok" data-page-node-id="GxhwATv1M8wfeOecBZHu21">官方通报</span></h3>
-      <p style="color:var(--muted);font-size:14px" id="jxText" data-page-node-id="aK8sqkCEHXzbGD4h8qSO5Q">今日无通报</p>
+      <div id="jxText" data-page-node-id="aK8sqkCEHXzbGD4h8qSO5Q"></div>
     </div>
     <div class="card" data-page-node-id="wjZ5OQT2B2SIqTFarjKsTI">
       <h3 data-page-node-id="vA8DIWoiNghe3vvF0GF483"><span class="ic" data-page-node-id="iaF0G69jAZCzBUQJEDcQcE">🏙️</span>北上广深 <span class="badge ok" data-page-node-id="gx5D9AkxkH3xjPv840WFnQ">官方通报</span></h3>
-      <div class="city-list" id="cityList" data-page-node-id="By6Ze1QY0GfikSXIh393SH"></div>
+      <div class="city-grid" id="cityList" data-page-node-id="By6Ze1QY0GfikSXIh393SH"></div>
     </div>
   </div>
 </section>
@@ -2109,11 +2126,52 @@ document.getElementById('statsView').innerHTML = stats.map(x=>
   document.getElementById('heroCaseLink').href = verifyUrl(c);
 })();
 
-// regions
-document.getElementById('jxText').textContent = BRIEF.jiangxi;
-document.getElementById('cityList').innerHTML = BRIEF.megacities.map(c=>
-  `<span class="city">${c.name} · ${c.status}</span>`
-).join('');
+// regions — 把「官方通报（…）」长串解析成事件流
+function parseEvents(status){
+  let s=(status||'').trim();
+  s=s.replace(/^[^（]*（/,'').replace(/）\s*$/,'');
+  if(!s||/无通报|未见官方通报/.test(s)) return [];
+  // 按事件真实日期切分（比依赖顿号更稳健，能理顺嵌套括号）
+  const re=/\d{1,2}·\d{1,2}[\s\S]*?(?=(?<![\/])\d{1,2}·\d{1,2}|$)/g;
+  let m, segs=[];
+  while((m=re.exec(s))){ segs.push(m[0].trim()); }
+  return segs.filter(Boolean).map(item=>{
+    const mm=item.match(/^(\d{1,2})·(\d{1,2})/);
+    const date=mm?`${mm[1]}·${mm[2]}`:'';
+    let body=date?item.replace(/^\d{1,2}·\d{1,2}\s*/,''):item;
+    // 去掉纯伤亡/无伤亡补充括号，让伤亡标签承担展示
+    body=body.replace(/[（(][^（）]*(?:死|伤|送医|救治)[^（）]*[）)]/g,'').trim();
+    body=body.replace(/[（(](?:无人员伤亡|无伤亡|暂未收到人员伤亡报告|未造成人员伤亡|已成功疏散|无人员伤亡，已成功疏散)[^）)]*[）)]/g,'').trim();
+    body=body.replace(/[、；;]\s*$/,'').replace(/[（(][^）)]*$/,'').replace(/^[\/、]\s*/,'');
+    const hasDead=/\d+\s*人?\s*死|死亡/.test(item);
+    let cas='';
+    if(hasDead){
+      const dm=item.match(/(\d+)\s*人?(?:经送医抢救无效)?\s*死[\s\S]*?(?:(\d+)\s*人?\s*伤|(\d+)\s*人?\s*送医|(\d+)\s*人?\s*救治)/);
+      if(dm){ cas=dm[2]!==undefined?`${dm[1]}死${dm[2]}伤`:dm[3]!==undefined?`${dm[1]}死${dm[3]}伤`:dm[4]!==undefined?`${dm[1]}死${dm[4]}伤`:`${dm[1]}死`; }
+      else { const d2=item.match(/(\d+)\s*人?\s*死/); cas=d2?`${d2[1]}死`:'死'; }
+    }
+    return {date,body:body||item,cas,hasDead};
+  });
+}
+function evRow(e){
+  return `<div class="ev${e.hasDead?' dead':''}"><span class="date">${e.date||'—'}</span><span class="body">${esc(e.body)}</span><span class="cas ${e.hasDead?'has':'none'}">${e.hasDead?esc(e.cas):'无伤亡'}</span></div>`;
+}
+// 江西省
+const jxEvents=parseEvents(BRIEF.jiangxi);
+const jxEl=document.getElementById('jxText');
+if(jxEvents.length){
+  const jxDead=jxEvents.filter(e=>e.hasDead).length;
+  jxEl.innerHTML=`<div class="reg-summary">本省近30天 ${jxEvents.length} 起 · 含伤亡 ${jxDead} 起</div><div class="ev-list">${jxEvents.map(evRow).join('')}</div>`;
+}else{
+  jxEl.innerHTML=`<div class="reg-summary">${esc(BRIEF.jiangxi||'今日无通报')}</div>`;
+}
+// 北上广深
+const cityWrap=document.getElementById('cityList');
+cityWrap.innerHTML=BRIEF.megacities.map(c=>{
+  const evs=parseEvents(c.status);
+  const dead=evs.filter(e=>e.hasDead).length;
+  return `<div class="city-card"><h4>${esc(c.name)}<span class="cnt">${evs.length} 起${dead?` · ${dead} 伤亡`:''}</span></h4>${evs.length?`<div class="ev-list">${evs.map(evRow).join('')}</div>`:'<div class="reg-summary">今日无通报</div>'}</div>`;
+}).join('');
 
 // ---------- 火情速递 feed ----------
 const counts = {};
