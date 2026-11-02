@@ -436,7 +436,7 @@
 <script id="brief-data" type="application/json">
 {
   "date": "2026年11月2日",
-  "compileTime": "2026-11-02 09:09",
+  "compileTime": "2026-11-02 15:41",
   "source": "AI 联网检索 · 各地消防救援机构官方通报及权威媒体转载",
   "range": "滚动更新 · 近 30 天",
   "stats": {
@@ -3771,9 +3771,28 @@ function fmtDate(iso){
 document.getElementById('navDate').textContent = BRIEF.date;
 
 // ---------- 今日要览：动态计算（近30天滚动窗口） ----------
-const todayISO = BRIEF.date.replace(/年|月/g,'-').replace('日','');
+// 统一解析为 UTC 毫秒数：兼容「2026年11月2日」「2026-11-2」「2026-11-02」，
+// 避免 Safari / iOS WKWebView 对非补零日期（如 2026-11-2）返回 Invalid Date，导致窗口内条目被全部过滤为 0。
+function toUTCms(v){
+  if(!v) return NaN;
+  const m=String(v).match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  if(!m) return NaN;
+  return Date.UTC(+m[1], +m[2]-1, +m[3]);
+}
+const todayISO = (function(){
+  const t=toUTCms(BRIEF.date);
+  if(isNaN(t)) return BRIEF.date;
+  const d=new Date(t);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+})();
+const TODAY_MS = toUTCms(todayISO);
 const WIN = 30;
-function inWindow(d){ if(!d) return false; const diff=(new Date(todayISO)-new Date(d))/86400000; return diff>=0 && diff<=WIN; }
+function inWindow(d){
+  const t=toUTCms(d);
+  if(isNaN(t) || isNaN(TODAY_MS)) return false;
+  const diff=(TODAY_MS-t)/86400000;
+  return diff>=0 && diff<=WIN;
+}
 const recent = history.filter(h=>inWindow(h.date));
 const totalCas = recent.reduce((a,h)=>a+parseCas(h),0);
 const s = BRIEF.stats || {};
@@ -4075,7 +4094,8 @@ document.getElementById('tipsView').innerHTML = BRIEF.tips.map((t,i)=>
 ).join('');
 
 // notes
-document.getElementById('notesView').innerHTML = BRIEF.notes.map((n,i)=>
+const notesEl = document.getElementById('notesView');
+if(notesEl) notesEl.innerHTML = BRIEF.notes.map((n,i)=>
   `<li><span class="b">${String(i+1).padStart(2,'0')}</span><span>${n}</span></li>`
 ).join('');
 
