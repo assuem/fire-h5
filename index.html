@@ -436,7 +436,7 @@
 <script id="brief-data" type="application/json">
 {
   "date": "2026年11月15日",
-  "compileTime": "2026-11-16 13:40",
+  "compileTime": "2026-11-16 15:35",
   "source": "AI 联网检索 · 各地消防救援机构官方通报及权威媒体转载",
   "range": "滚动更新 · 近 30 天",
   "stats": {
@@ -4353,7 +4353,7 @@ function fmtDate(iso){
 }
 
 // nav
-document.getElementById('navDate').textContent = BRIEF.date;
+document.getElementById('navDate').textContent = '数据至 ' + BRIEF.date.slice(5);
 
 // ---------- 今日要览：动态计算（近30天滚动窗口） ----------
 // 统一解析为 UTC 毫秒数：兼容「2026年11月2日」「2026-11-2」「2026-11-02」，
@@ -4385,7 +4385,7 @@ const stats = [
   {k:recent.length, l:`近30天收录火情 (起)`, c:'red'},
   {k:s.noReportRegions!=null?s.noReportRegions:5, l:'重点地区监测 (个)', c:'green'},
   {k:totalCas, l:'近30天人员伤亡 (人)', c:'blue'},
-  {k:BRIEF.date.slice(5), l:'更新日期', c:'yellow'}
+  {k:(BRIEF.compileTime||BRIEF.date).slice(5,10), l:'更新日期', c:'yellow'}
 ];
 document.getElementById('statsView').innerHTML = stats.map(x=>
   `<div class="stat ${x.c}"><div class="k">${x.k}</div><div class="l">${x.l}</div></div>`
